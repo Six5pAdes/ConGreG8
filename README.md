@@ -1,2 +1,2 @@
 # church-search-app
-come up w/ a snappier name
+This is a web application designed to help you search for your optimal home church. We take in factors such as doctrine, age demographic, racial demographic, denomination, and ability to serve; then we compare your specifics against our database and pair you up with the most optimal fit.
