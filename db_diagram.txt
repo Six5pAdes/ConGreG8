@@ -1,0 +1,82 @@
+Table users {
+  id integer [primary key]
+  email varchar
+  username varchar
+  hashed_password varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table userPreferences {
+  id integer [primary key]
+  user_id integer
+  preferred_denomination text
+  preferred_doctrine text
+  preferred_racial_demographic text
+  preferred_age_demographic text
+  wants_to_serve boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table churches {
+  id integer [primary key]
+  user_id integer
+  name varchar
+  latitude integer
+  longitude integer
+  city varchar
+  state varchar
+  description text
+  size integer
+  denomination text
+  website varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table churchImages {
+  id integer [primary key]
+  church_id integer
+  url varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table churchAttributes {
+  id integer [primary key]
+  church_id integer
+  doctrine text
+  racial_demographic text
+  age_demographic text
+  offers_service_opportunities boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table reviews {
+  id integer [primary key]
+  user_id integer
+  church_id integer
+  body text
+  rating integer
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table savedChurches {
+  id integer [primary key]
+  user_id integer
+  church_id integer
+  created_at timestamp
+}
+
+
+Ref: "users"."id" < "userPreferences"."user_id"
+Ref: "users"."id" < "churches"."user_id"
+Ref: "users"."id" < "reviews"."user_id"
+Ref: "users"."id" < "savedChurches"."user_id"
+Ref: "churches"."id" < "churchImages"."church_id"
+Ref: "churches"."id" < "churchAttributes"."church_id"
+Ref: "churches"."id" < "reviews"."church_id"
+Ref: "churches"."id" < "savedChurches"."church_id"
