@@ -1,0 +1,29 @@
+{
+  "name": "congreg8",
+  "version": "1.0.0",
+  "description": "This is a web application designed to help you search for your optimal home church. We take in factors such as size, age group, ethnic majority, language, denomination, and ability to serve; then we compare your specifics against our database and pair you up with the best fit.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Six5pAdes/CongreG8.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Six5pAdes/CongreG8/issues"
+  },
+  "homepage": "https://github.com/Six5pAdes/CongreG8#readme",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

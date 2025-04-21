@@ -1,60 +1,31 @@
-Table users {
+Table Users {
   id integer [primary key]
   email varchar
   username varchar
   hashed_password varchar
+  isChurchgoer boolean
   created_at timestamp
   updated_at timestamp
 }
 
-Table userPreferences {
-  id integer [primary key]
-  user_id integer
-  preferred_denomination text
-  preferred_doctrine text
-  preferred_racial_demographic text
-  preferred_age_demographic text
-  wants_to_serve boolean
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table churches {
+Table Churches {
   id integer [primary key]
   user_id integer
   name varchar
   latitude integer
   longitude integer
+  address varchar
   city varchar
   state varchar
   description text
-  size integer
-  denomination text
+  phone varchar
+  email varchar
   website varchar
   created_at timestamp
   updated_at timestamp
 }
 
-Table churchImages {
-  id integer [primary key]
-  church_id integer
-  url varchar
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table churchAttributes {
-  id integer [primary key]
-  church_id integer
-  doctrine text
-  racial_demographic text
-  age_demographic text
-  offers_service_opportunities boolean
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table reviews {
+Table Reviews {
   id integer [primary key]
   user_id integer
   church_id integer
@@ -64,19 +35,64 @@ Table reviews {
   updated_at timestamp
 }
 
-Table savedChurches {
+Table UserPreferences {
+  id integer [primary key]
+  user_id integer
+  preferred_size integer  // target average size
+  preferred_age_group text
+  preferred_ethnic_majority text
+  preferred_language varchar
+  preferred_denomination text
+  wants_to_serve boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table ChurchAttributes {
+  id integer [primary key]
+  church_id integer
+  size integer  // Number of regular attendees
+  denomination text
+  language varchar
+  ethnic_majority text  // e.g., "Multicultural", "Predominantly Black", etc.
+  age_group text  // e.g., "Youth-focused", "Family", "Seniors", etc.
+  offers_service_opportunities boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table ChurchImages {
+  id integer [primary key]
+  church_id integer
+  url varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table SavedChurches {
   id integer [primary key]
   user_id integer
   church_id integer
   created_at timestamp
 }
 
+Table ServiceOpportunities {
+  id integer [primary key]
+  church_id integer
+  title varchar
+  description text
+  is_active boolean
+  created_at timestamp
+  updated_at timestamp
+}
 
-Ref: "users"."id" < "userPreferences"."user_id"
-Ref: "users"."id" < "churches"."user_id"
-Ref: "users"."id" < "reviews"."user_id"
-Ref: "users"."id" < "savedChurches"."user_id"
-Ref: "churches"."id" < "churchImages"."church_id"
-Ref: "churches"."id" < "churchAttributes"."church_id"
-Ref: "churches"."id" < "reviews"."church_id"
-Ref: "churches"."id" < "savedChurches"."church_id"
+
+Ref: "Users"."id" < "Reviews"."user_id"
+Ref: "Users"."id" < "Churches"."user_id"
+Ref: "Users"."id" < "UserPreferences"."user_id"
+Ref: "Users"."id" < "SavedChurches"."user_id"
+Ref: "Churches"."id" < "Reviews"."church_id"
+Ref: "Churches"."id" < "ChurchImages"."church_id"
+Ref: "Churches"."id" < "ChurchAttributes"."church_id"
+Ref: "Churches"."id" < "SavedChurches"."church_id"
+Ref: "Churches"."id" < "ServiceOpportunities"."church_id"
