@@ -1,9 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
-
 import { connectDB } from './config/db.js';
-
 import churchRoutes from './routes/church.route.js';
 
 dotenv.config();
@@ -26,5 +24,5 @@ if (process.env.NODE_ENV === "production") {
 
 app.listen(PORT, () => {
     connectDB();
-    console.log('Server is running at http://localhost:5000');
+    console.log('Server is running at http://localhost:' + PORT);
 })

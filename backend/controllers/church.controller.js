@@ -14,7 +14,7 @@ export const getChurches = async (req, res) => {
 export const createChurch = async (req, res) => {
     const church = req.body;
 
-    if (!church.name || !church.address || !church.city || !church.state || !church.website) {
+    if (!church.name || !church.address || !church.city || !church.state || !church.phone || !church.email || !church.website) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
@@ -36,6 +36,10 @@ export const updateChurch = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ success: false, message: "Invalid Church Id" });
+    }
+
+    if (!church.name || !church.address || !church.city || !church.state || !church.phone || !church.email || !church.website) {
+        return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
     try {
