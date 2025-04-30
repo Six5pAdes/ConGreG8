@@ -4,9 +4,9 @@
   "description": "This is a web application designed to help you search for your optimal home church. We take in factors such as size, age group, ethnic majority, language, denomination, and ability to serve; then we compare your specifics against our database and pair you up with the best fit.",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon backend/server.js",
+    "dev": "NODE_ENV=development nodemon backend/server/index.js",
     "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "NODE_ENV=production node backend/server.js"
+    "start": "NODE_ENV=production node backend/server/index.js"
   },
   "repository": {
     "type": "git",
@@ -21,9 +21,13 @@
   },
   "homepage": "https://github.com/Six5pAdes/CongreG8#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.16.0",
     "mongoose": "^8.13.2"
   },
