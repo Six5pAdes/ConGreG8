@@ -63,16 +63,21 @@ const registerUser = asyncHandler(async (req, res) => {
     churchName,
   });
 
-  if (user) {
+  if (user && isChurchgoer) {
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
-      isChurchgoer: user.isChurchgoer,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       username: user.username,
+    });
+  } else if (user && !isChurchgoer) {
+    generateToken(res, user._id);
+    res.status(201).json({
+      _id: user._id,
       churchName: user.churchName,
+      email: user.email,
     });
   } else {
     res.status(400);

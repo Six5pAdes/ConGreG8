@@ -8,6 +8,7 @@ import userRoutes from '../routes/user.route.js';
 import churchRoutes from '../routes/church.route.js';
 
 dotenv.config();
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
