@@ -1,10 +1,10 @@
-import {
-  Box,
-  useColorModeValue
-} from "@chakra-ui/react";
+import { Box, useColorModeValue } from "@chakra-ui/react";
 import { Route, Routes } from "react-router-dom"
+
 import Home from "./pages/Home"
-import Create from "./pages/Create"
+import CreateChurch from "./pages/CreateChurch"
+import Account from "./pages/Account"
+
 import NavBar from "./components/NavBar"
 
 function App() {
@@ -15,13 +15,9 @@ function App() {
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/about" element={<About />} /> */}
-        <Route path="/new" element={<Create />} />
-        {/* <Route path="/contact" element={<Contact />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<NotFound />} /> */}
+        <Route path="/church/:id" element={<div>Church Details</div>} />
+        <Route path="/new" element={<CreateChurch />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
     </Box>
   )

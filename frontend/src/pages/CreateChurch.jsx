@@ -1,12 +1,11 @@
-import { Container, VStack, Heading, Box, Text, Input, Button, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack } from '@chakra-ui/react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
 
-const Create = () => {
+const CreateChurch = () => {
     const [newChurch, setNewChurch] = useState({
         name: "",
-        latitude: "",
-        longitude: "",
         address: "",
         city: "",
         state: "",
@@ -17,23 +16,47 @@ const Create = () => {
     })
 
     const { createChurch } = useChurchStore()
+    const toast = useToast()
+    const navigate = useNavigate()
+
     const handleAddChurch = async () => {
         const { success, message } = await createChurch(newChurch)
-        console.log("Success:", success)
-        console.log("Message:", message)
+        if (!success) {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: "Success",
+                description: message,
+                status: "success",
+                isClosable: true,
+            })
+        }
+        setNewChurch({
+            name: "",
+            address: "",
+            city: "",
+            state: "",
+            description: "",
+            phone: "",
+            email: "",
+            website: "",
+            image: ""
+        })
     }
 
     return <Container maxW={"container.sm"}>
-        <VStack
-            spacing={8}
-        >
+        <VStack spacing={8} py={8}>
             <Heading as={"h1"} size={"2xl"} textAlign={"center"} mb={8}>
                 Create New Church
             </Heading>
 
             <Box
-                w={"full"} bg={useColorModeValue("white", "gray.800")}
-                p={6} rounded={"lg"} shadow={"md"}
+                w={"full"} bg={useColorModeValue("white", "gray.800")} p={6} rounded={"lg"} shadow={"md"}
             >
                 <VStack spacing={4}>
                     <Text as={"h4"} textAlign={"start"}>✪ = required field</Text>
@@ -42,20 +65,6 @@ const Create = () => {
                         name='name'
                         value={newChurch.name}
                         onChange={(e) => setNewChurch({ ...newChurch, name: e.target.value })}
-                    />
-                    <Input
-                        placeholder='Church Latitude'
-                        name='latitude'
-                        type='number'
-                        value={newChurch.latitude}
-                        onChange={(e) => setNewChurch({ ...newChurch, latitude: e.target.value })}
-                    />
-                    <Input
-                        placeholder='Church Longitude'
-                        name='longitude'
-                        type='number'
-                        value={newChurch.longitude}
-                        onChange={(e) => setNewChurch({ ...newChurch, longitude: e.target.value })}
                     />
                     <Input
                         placeholder='Church Address ✪'
@@ -82,7 +91,7 @@ const Create = () => {
                         onChange={(e) => setNewChurch({ ...newChurch, description: e.target.value })}
                     />
                     <Input
-                        placeholder='Church Phone ✪'
+                        placeholder='Church Phone'
                         name='phone'
                         value={newChurch.phone}
                         onChange={(e) => setNewChurch({ ...newChurch, phone: e.target.value })}
@@ -99,7 +108,14 @@ const Create = () => {
                         value={newChurch.website}
                         onChange={(e) => setNewChurch({ ...newChurch, website: e.target.value })}
                     />
-                    <Button colorScheme="blue" onClick={handleAddChurch} w='full'>Add Church</Button>
+                    <Input
+                        placeholder='Church Image URL ✪'
+                        name='image'
+                        value={newChurch.image}
+                        onChange={(e) => setNewChurch({ ...newChurch, image: e.target.value })}
+                    />
+                    <Button colorScheme="blue" onClick={handleAddChurch} w='half'>Add Church</Button>
+                    <Button colorScheme='red' onClick={() => navigate(-1)} w={'half'}>Cancel</Button>
                 </VStack>
 
             </Box>
@@ -107,4 +123,4 @@ const Create = () => {
     </Container>
 }
 
-export default Create
+export default CreateChurch

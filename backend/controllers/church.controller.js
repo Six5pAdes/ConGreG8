@@ -42,9 +42,9 @@ export const createChurch = async (req, res) => {
     !church.address ||
     !church.city ||
     !church.state ||
-    !church.phone ||
     !church.email ||
-    !church.website
+    !church.website ||
+    !church.image
   ) {
     return res
       .status(400)
@@ -90,13 +90,13 @@ export const updateChurch = async (req, res) => {
     !church.address ||
     !church.city ||
     !church.state ||
-    !church.phone ||
     !church.email ||
-    !church.website
+    !church.website ||
+    !church.image
   ) {
     return res
       .status(400)
-      .json({ success: false, message: "All fields are required" });
+      .json({ success: false, message: "All fields are required." });
   }
 
   try {
