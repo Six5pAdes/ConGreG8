@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
 
-const authUser = asyncHandler(async (req, res) => {
+export const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -10,19 +10,27 @@ const authUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id);
 
-    res.json({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-    });
+    if (user.isChurchgoer) {
+      res.json({
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      });
+    } else if (!user.isChurchgoer) {
+      res.json({
+        _id: user._id,
+        churchName: user.churchName,
+        email: user.email,
+      });
+    }
   } else {
     res.status(401);
     throw new Error("Invalid email or password");
   }
 });
 
-const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
   const {
     isChurchgoer,
     firstName,
@@ -57,10 +65,10 @@ const registerUser = asyncHandler(async (req, res) => {
     isChurchgoer,
     firstName,
     lastName,
-    email,
     username,
-    password,
     churchName,
+    email,
+    password,
   });
 
   if (user && isChurchgoer) {
@@ -69,8 +77,8 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email,
       username: user.username,
+      email: user.email,
     });
   } else if (user && !isChurchgoer) {
     generateToken(res, user._id);
@@ -85,7 +93,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-const logoutUser = (req, res) => {
+export const logoutUser = (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
     expires: new Date(0),
@@ -93,17 +101,26 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: "User logged out" });
 };
 
-const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+export const getUserProfile = asyncHandler(async (req, res) => {
+  // If ID is provided in params, get that user's profile
+  // Otherwise, get the authenticated user's profile
+  const userId = req.params.id || req.user._id;
 
-  if (user) {
+  const user = await User.findById(userId).select("-password");
+
+  if (user.isChurchgoer) {
     res.json({
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email,
       username: user.username,
+      email: user.email,
+    });
+  } else if (!user.isChurchgoer) {
+    res.json({
+      _id: user._id,
       churchName: user.churchName,
+      email: user.email,
     });
   } else {
     res.status(404);
@@ -111,14 +128,17 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-const updateUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+export const updateUserProfile = asyncHandler(async (req, res) => {
+  const userId = req.params.id || req.user._id;
+
+  const user = await User.findById(userId).select("-password");
 
   if (user) {
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
     user.username = req.body.username || user.username;
+    user.churchName = req.body.churchName || user.churchName;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -126,24 +146,33 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
 
-    res.json({
-      _id: updatedUser._id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      username: updatedUser.username,
-    });
-  } else {
-    res.status(404);
-    throw new Error("User not found");
+    if (user.isChurchgoer) {
+      res.json({
+        _id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        username: updatedUser.username,
+        email: updatedUser.email,
+      });
+    } else if (!user.isChurchgoer) {
+      res.json({
+        _id: updatedUser._id,
+        churchName: updatedUser.churchName,
+        email: updatedUser.email,
+      });
+    } else {
+      res.status(404);
+      throw new Error("User not found");
+    }
   }
 });
 
-const deleteUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+export const deleteUserProfile = asyncHandler(async (req, res) => {
+  const userId = req.params.id || req.user._id;
+  const user = await User.findById(userId).select("-password");
 
   if (user) {
-    await user.remove();
+    await User.findByIdAndDelete(user);
     res.json({ message: "User removed" });
   } else {
     res.status(404);
@@ -151,17 +180,7 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-const getUsers = asyncHandler(async (req, res) => {
+export const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find({}).select("-password");
   res.json(users);
 });
-
-export {
-  authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  deleteUserProfile,
-  getUsers,
-};

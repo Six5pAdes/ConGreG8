@@ -37,6 +37,14 @@ export const getOneChurch = async (req, res) => {
 export const createChurch = async (req, res) => {
   const church = req.body;
 
+  // Check if user is authorized (not a churchgoer)
+  if (req.user.isChurchgoer) {
+    return res.status(403).json({
+      success: false,
+      message: "Only church representatives can create churches",
+    });
+  }
+
   if (
     !church.name ||
     !church.address ||
@@ -76,8 +84,15 @@ export const createChurch = async (req, res) => {
 
 export const updateChurch = async (req, res) => {
   const { id } = req.params;
-
   const church = req.body;
+
+  // Check if user is authorized (not a churchgoer)
+  if (req.user.isChurchgoer) {
+    return res.status(403).json({
+      success: false,
+      message: "Only church representatives can update churches",
+    });
+  }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res
@@ -111,6 +126,14 @@ export const updateChurch = async (req, res) => {
 
 export const deleteChurch = async (req, res) => {
   const { id } = req.params;
+
+  // Check if user is authorized (not a churchgoer)
+  if (req.user.isChurchgoer) {
+    return res.status(403).json({
+      success: false,
+      message: "Only church representatives can delete churches",
+    });
+  }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res

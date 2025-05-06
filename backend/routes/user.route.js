@@ -6,19 +6,19 @@ import {
   getUserProfile,
   updateUserProfile,
   deleteUserProfile,
-  getUsers,
+  getAllUsers,
 } from "../controllers/user.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.route("/").get(protect, getUsers).post(registerUser);
+router.route("/").get(getAllUsers).post(registerUser);
 router.post("/login", authUser);
 router.delete("/logout", logoutUser);
-router
-  .route("/profile")
-  .get(protect, getUserProfile)
-  .put(protect, updateUserProfile)
-  .delete(protect, deleteUserProfile);
+
+// Add route for getting a specific user's profile
+router.get("/profile/:id", protect, getUserProfile);
+router.put("/profile/:id", protect, updateUserProfile);
+router.delete("/profile/:id", protect, deleteUserProfile);
 
 export default router;

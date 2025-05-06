@@ -1,4 +1,5 @@
 import express from "express";
+import { protect } from "../middleware/authMiddleware.js";
 
 import {
   createChurch,
@@ -12,8 +13,8 @@ const router = express.Router();
 
 router.get("/", getChurches);
 router.get("/:id", getOneChurch);
-router.post("/", createChurch);
-router.put("/:id", updateChurch);
-router.delete("/:id", deleteChurch);
+router.post("/", protect, createChurch);
+router.put("/:id", protect, updateChurch);
+router.delete("/:id", protect, deleteChurch);
 
 export default router;
