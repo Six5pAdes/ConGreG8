@@ -12,16 +12,22 @@ export const authUser = asyncHandler(async (req, res) => {
 
     if (user.isChurchgoer) {
       res.json({
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
+        success: true,
+        data: {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
       });
     } else if (!user.isChurchgoer) {
       res.json({
-        _id: user._id,
-        churchName: user.churchName,
-        email: user.email,
+        success: true,
+        data: {
+          _id: user._id,
+          churchName: user.churchName,
+          email: user.email,
+        },
       });
     }
   } else {

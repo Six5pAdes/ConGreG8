@@ -48,7 +48,9 @@ export const useChurchStore = create((set) => ({
     const data = await res.json();
     if (!data.success) return { success: false, message: data.message };
 
-    set((state) => ({ churches: state.churches.filter((church) => church._id !== cid) }));
+    set((state) => ({
+      churches: state.churches.filter((church) => church._id !== cid),
+    }));
     return { success: true, message: data.message };
   },
 
@@ -70,5 +72,12 @@ export const useChurchStore = create((set) => ({
       ),
     }));
     return { success: true, message: data.message };
+  },
+
+  fetchChurch: async (cid) => {
+    const res = await fetch(`/api/churches/${cid}`);
+    const data = await res.json();
+    if (!data.success) return { success: false, message: data.message };
+    return { success: true, data: data.data };
   },
 }));

@@ -19,6 +19,7 @@ import {
     useDisclosure,
     useToast,
     VStack,
+    Textarea
 } from "@chakra-ui/react";
 import { useChurchStore } from "../store/church";
 import { useState } from "react";
@@ -117,30 +118,30 @@ const ChurchCard = ({ church }) => {
                     <ModalBody>
                         <VStack spacing={4} p={4} bg={bg} rounded={"lg"} shadow={"md"}>
                             <Input
-                                placeholder='Church Name ✪'
+                                placeholder='Church Name'
                                 name='name'
                                 value={updatedChurch.name}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, name: e.target.value })}
                             />
                             <Input
-                                placeholder='Church Address ✪'
+                                placeholder='Church Address'
                                 name='address'
                                 value={updatedChurch.address}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, address: e.target.value })}
                             />
                             <Input
-                                placeholder='Church City ✪'
+                                placeholder='Church City'
                                 name='city'
                                 value={updatedChurch.city}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, city: e.target.value })}
                             />
                             <Input
-                                placeholder='Church State ✪'
+                                placeholder='Church State'
                                 name='state'
                                 value={updatedChurch.state}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, state: e.target.value })}
                             />
-                            <Input
+                            <Textarea
                                 placeholder='Church Description'
                                 name='description'
                                 value={updatedChurch.description}
@@ -153,19 +154,19 @@ const ChurchCard = ({ church }) => {
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, phone: e.target.value })}
                             />
                             <Input
-                                placeholder='Church Email ✪'
+                                placeholder='Church Email'
                                 name='email'
                                 value={updatedChurch.email}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, email: e.target.value })}
                             />
                             <Input
-                                placeholder='Church Website ✪'
+                                placeholder='Church Website'
                                 name='website'
                                 value={updatedChurch.website}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, website: e.target.value })}
                             />
                             <Input
-                                placeholder='Church Image URL ✪'
+                                placeholder='Church Image URL'
                                 name='image'
                                 value={updatedChurch.image}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, image: e.target.value })}
@@ -177,7 +178,7 @@ const ChurchCard = ({ church }) => {
                         <Button colorScheme="teal" mr={3} onClick={() => handleUpdate(church._id, updatedChurch)}>
                             Update
                         </Button>
-                        <Button variant="ghost" onClick={onDeleteClose}>Cancel</Button>
+                        <Button variant="ghost" onClick={onUpdateClose}>Cancel</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
