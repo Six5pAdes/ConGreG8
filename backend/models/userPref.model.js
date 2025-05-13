@@ -5,7 +5,6 @@ const userPreferenceSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     size: { type: Integer, required: true },
     ageGroup: {

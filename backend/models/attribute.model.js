@@ -5,7 +5,6 @@ const attributeSchema = new mongoose.Schema(
     churchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Church",
-      required: true,
     },
     size: { type: Number, required: true },
     ageGroup: {

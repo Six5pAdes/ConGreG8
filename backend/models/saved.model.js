@@ -5,12 +5,10 @@ const savedSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     churchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Church",
-      required: true,
     },
   },
   {

@@ -2,10 +2,12 @@ import { Container, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
+import { useUserStore } from '../store/user'
 import ChurchCard from '../components/ChurchCard'
 
 const Home = () => {
     const { fetchChurches, churches } = useChurchStore()
+    const { currentUser } = useUserStore();
 
     useEffect(() => {
         fetchChurches()
@@ -41,7 +43,7 @@ const Home = () => {
                     ))}
                 </SimpleGrid>
 
-                {churches.length === 0 && (
+                {churches.length === 0 && currentUser && !currentUser.isChurchgoer && (
                     <Text as="span" textAlign={"center"} fontSize={"xl"} fontWeight={"medium"} color={"gray.600"}>
                         The congregation is empty. Come help populate ConGreG8!
                         <br />

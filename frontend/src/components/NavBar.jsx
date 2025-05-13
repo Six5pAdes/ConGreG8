@@ -7,12 +7,14 @@ import { useNavigate } from "react-router-dom";
 const NavBar = () => {
     const { colorMode, toggleColorMode } = useColorMode()
     const { currentUser, logout } = useUserStore()
+    const navigate = useNavigate()
 
-    const showAddChurchButton = currentUser && currentUser.isChurchgoer === true
+    const showAddChurchButton = currentUser && !currentUser.isChurchgoer
 
-    const handleLogout = () => {
+    const handleLogout = (e) => {
+        e.preventDefault();
         logout()
-        useNavigate('/')
+        navigate('/')
     }
 
     return (
@@ -55,7 +57,7 @@ const NavBar = () => {
                             {currentUser ? (
                                 <>
                                     <MenuItem as={Link} to="/account">
-                                        My Account
+                                        {currentUser.email}
                                     </MenuItem>
                                     <MenuItem onClick={handleLogout}>
                                         <LuLogOut style={{ marginRight: "8px" }} />

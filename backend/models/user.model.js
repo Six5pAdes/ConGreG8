@@ -44,6 +44,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    churches: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Church",
+      },
+    ],
   },
   {
     timestamps: true,

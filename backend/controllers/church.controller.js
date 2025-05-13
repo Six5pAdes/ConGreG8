@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Church from "../models/church.model.js";
+import User from "../models/user.model.js";
 
 export const getChurches = async (req, res) => {
   try {
@@ -73,8 +74,17 @@ export const createChurch = async (req, res) => {
       });
     }
 
+    // Add the user ID to the church
+    church.userId = req.user._id;
+
     const newChurch = new Church(church);
     await newChurch.save();
+
+    // Add the church to the user's churches array
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { churches: newChurch._id },
+    });
+
     res.status(201).json({ success: true, data: newChurch });
   } catch (error) {
     console.error("Error in Creating Church:", error.message);
@@ -98,6 +108,25 @@ export const updateChurch = async (req, res) => {
     return res
       .status(404)
       .json({ success: false, message: "Invalid Church Id" });
+  }
+
+  // Check if the church exists
+  const existingChurch = await Church.findById(id);
+  if (!existingChurch) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Church not found" });
+  }
+
+  // Check if the church belongs to the user
+  if (
+    !existingChurch.userId ||
+    existingChurch.userId.toString() !== req.user._id.toString()
+  ) {
+    return res.status(403).json({
+      success: false,
+      message: "You are not authorized to update this church",
+    });
   }
 
   if (
@@ -142,7 +171,32 @@ export const deleteChurch = async (req, res) => {
   }
 
   try {
+    // Check if the church exists
+    const church = await Church.findById(id);
+    if (!church) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Church not found" });
+    }
+
+    // Check if the church belongs to the user
+    if (
+      !church.userId ||
+      church.userId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this church",
+      });
+    }
+
     await Church.findByIdAndDelete(id);
+
+    // Remove the church from the user's churches array
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { churches: id },
+    });
+
     res.status(200).json({ success: true, message: "Church deleted" });
   } catch (error) {
     console.log("error in deleting church:", error.message);

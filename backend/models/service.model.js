@@ -5,7 +5,6 @@ const serviceSchema = new mongoose.Schema(
     churchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Church",
-      required: true,
     },
     title: { type: String, required: true },
     description: { type: String, required: true },

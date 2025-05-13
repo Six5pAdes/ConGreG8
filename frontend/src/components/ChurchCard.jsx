@@ -22,11 +22,15 @@ import {
     Textarea
 } from "@chakra-ui/react";
 import { useChurchStore } from "../store/church";
+import { useUserStore } from "../store/user";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ChurchCard = ({ church }) => {
     const textColor = useColorModeValue("light" ? "gray.800" : "whiteAlpha.900");
     const bg = useColorModeValue("white", "gray.800");
+    const { currentUser } = useUserStore();
+    const navigate = useNavigate();
 
     const [updatedChurch, setUpdatedChurch] = useState(church)
 
@@ -35,6 +39,14 @@ const ChurchCard = ({ church }) => {
 
     const { isOpen: isUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+
+    const handleCardClick = (e) => {
+        // Prevent navigation if clicking on edit or delete buttons
+        if (e.target.closest('button')) {
+            return;
+        }
+        navigate(`/church/${church._id}`);
+    };
 
     const handleDelete = async (cid) => {
         const { success, message } = await deleteChurch(cid)
@@ -91,6 +103,8 @@ const ChurchCard = ({ church }) => {
                 boxShadow: "xl",
             }}
             bg={bg}
+            onClick={handleCardClick}
+            cursor="pointer"
         >
             <Image src={church.image} alt={church.name} h={48} w='full' objectFit="cover" />
 
@@ -103,10 +117,12 @@ const ChurchCard = ({ church }) => {
                     {church.address}, {church.city}, {church.state}
                 </Text>
 
-                <HStack spacing={2}>
-                    <IconButton icon={<EditIcon />} colorScheme="teal" size="sm" onClick={onUpdateOpen} />
-                    <IconButton icon={<DeleteIcon />} colorScheme="red" size="sm" onClick={onDeleteOpen} />
-                </HStack>
+                {currentUser && !currentUser.isChurchgoer && (
+                    <HStack spacing={2}>
+                        <IconButton icon={<EditIcon />} colorScheme="teal" size="sm" onClick={onUpdateOpen} />
+                        <IconButton icon={<DeleteIcon />} colorScheme="red" size="sm" onClick={onDeleteOpen} />
+                    </HStack>
+                )}
             </Box>
 
             <Modal isOpen={isUpdateOpen} onClose={onUpdateClose}>
