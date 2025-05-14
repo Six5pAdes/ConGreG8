@@ -9,7 +9,7 @@ const NavBar = () => {
     const { currentUser, logout } = useUserStore()
     const navigate = useNavigate()
 
-    const showAddChurchButton = currentUser && !currentUser.isChurchgoer
+    const showAddChurchButton = currentUser && currentUser?.userType === "churchRep"
 
     const handleLogout = (e) => {
         e.preventDefault();
@@ -56,7 +56,7 @@ const NavBar = () => {
                         <MenuList>
                             {currentUser ? (
                                 <>
-                                    <MenuItem as={Link} to="/account">
+                                    <MenuItem as={Link} to={`/profile/${currentUser._id}`}>
                                         {currentUser.email}
                                     </MenuItem>
                                     <MenuItem onClick={handleLogout}>

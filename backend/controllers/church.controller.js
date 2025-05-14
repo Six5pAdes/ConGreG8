@@ -39,7 +39,7 @@ export const createChurch = async (req, res) => {
   const church = req.body;
 
   // Check if user is authorized (not a churchgoer)
-  if (req.user.isChurchgoer) {
+  if (req.user.userType === "churchgoer") {
     return res.status(403).json({
       success: false,
       message: "Only church representatives can create churches",
@@ -97,7 +97,7 @@ export const updateChurch = async (req, res) => {
   const church = req.body;
 
   // Check if user is authorized (not a churchgoer)
-  if (req.user.isChurchgoer) {
+  if (req.user.userType === "churchgoer") {
     return res.status(403).json({
       success: false,
       message: "Only church representatives can update churches",
@@ -157,7 +157,7 @@ export const deleteChurch = async (req, res) => {
   const { id } = req.params;
 
   // Check if user is authorized (not a churchgoer)
-  if (req.user.isChurchgoer) {
+  if (req.user.userType === "churchgoer") {
     return res.status(403).json({
       success: false,
       message: "Only church representatives can delete churches",

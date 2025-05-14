@@ -7,19 +7,20 @@ export const useUserStore = create(
       users: [],
       currentUser: null,
       setUsers: (users) => set({ users }),
-      setCurrentUser: (user) => set({ currentUser: user }),
+      setCurrentUser: (user) => set({
+        currentUser: user,
+      }),
 
       fetchUser: async (uid) => {
-        const res = await fetch(`/api/users/profile/${uid}`);
+        const res = await fetch(`/api/users/${uid}`);
         const data = await res.json();
-
         if (!data.success) return { success: false, message: data.message };
         return { success: true, data: data.data };
       },
 
       createUser: async (newUser) => {
         if (
-          newUser.isChurchgoer === true &&
+          newUser.userType === "churchgoer" &&
           (!newUser.firstName ||
             !newUser.lastName ||
             !newUser.username ||
@@ -33,7 +34,7 @@ export const useUserStore = create(
         }
 
         if (
-          newUser.isChurchgoer === false &&
+          newUser.userType === "churchRep" &&
           (!newUser.email || !newUser.password || !newUser.churchName)
         ) {
           return {

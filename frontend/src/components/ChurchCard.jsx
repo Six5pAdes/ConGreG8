@@ -117,7 +117,7 @@ const ChurchCard = ({ church }) => {
                     {church.address}, {church.city}, {church.state}
                 </Text>
 
-                {currentUser && !currentUser.isChurchgoer && (
+                {currentUser && currentUser.userType === "churchRep" && (
                     <HStack spacing={2}>
                         <IconButton icon={<EditIcon />} colorScheme="teal" size="sm" onClick={onUpdateOpen} />
                         <IconButton icon={<DeleteIcon />} colorScheme="red" size="sm" onClick={onDeleteOpen} />
@@ -129,7 +129,7 @@ const ChurchCard = ({ church }) => {
                 <ModalOverlay />
 
                 <ModalContent>
-                    <ModalHeader>Update Church</ModalHeader>
+                    <ModalHeader>Edit Church Info</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <VStack spacing={4} p={4} bg={bg} rounded={"lg"} shadow={"md"}>

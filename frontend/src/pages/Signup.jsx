@@ -1,10 +1,11 @@
 import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack, HStack, RadioGroup, Radio, FormControl, FormLabel } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useUserStore } from '../store/user'
+import { useNavigate } from 'react-router-dom'
 
 const Signup = () => {
     const [newUser, setNewUser] = useState({
-        isChurchgoer: "",
+        userType: "",
         firstName: "",
         lastName: "",
         username: "",
@@ -12,20 +13,21 @@ const Signup = () => {
         email: "",
         password: "",
     })
-    const [churchgoerType, setChurchgoerType] = useState("")
+    const [userType, setUserType] = useState("")
     const toast = useToast()
+    const navigate = useNavigate()
 
     const isFormValid = () => {
         return (
-            newUser.isChurchgoer !== "" &&
-            (newUser.isChurchgoer === true || newUser.isChurchgoer === "yes") &&
+            newUser.userType !== "" &&
+            (newUser.userType === "churchgoer") &&
             (newUser.firstName.trim() !== "" &&
                 newUser.lastName.trim() !== "" &&
                 newUser.username.trim() !== "" &&
                 newUser.email.trim() !== "" &&
                 newUser.password.trim() !== ""
             ) ||
-            (newUser.isChurchgoer === false || newUser.isChurchgoer === "no") &&
+            (newUser.userType === "churchRep") &&
             (newUser.churchName.trim() !== "" &&
                 newUser.email.trim() !== "" &&
                 newUser.password.trim() !== "")
@@ -51,10 +53,11 @@ const Signup = () => {
                 status: "success",
                 isClosable: true,
             })
+            navigate('/')
         }
 
         setNewUser({
-            isChurchgoer: "",
+            userType: "",
             firstName: "",
             lastName: "",
             username: "",
@@ -62,14 +65,14 @@ const Signup = () => {
             email: "",
             password: "",
         })
-        setChurchgoerType("")
+        setUserType("")
     }
 
-    const handleChurchgoerChange = (value) => {
-        setChurchgoerType(value)
+    const handleUserType = (value) => {
+        setUserType(value)
         // Convert string to boolean if needed
-        const isChurchgoer = value === "yes" ? true : value === "no" ? false : value
-        setNewUser(prev => ({ ...prev, isChurchgoer }))
+        const userType = value === "yes" ? "churchgoer" : value === "no" ? "churchRep" : value
+        setNewUser(prev => ({ ...prev, userType }))
     }
 
     return <Container maxW={"container.sm"}>
@@ -87,16 +90,16 @@ const Signup = () => {
                 <VStack spacing={4}>
 
                     <FormControl isRequired>
-                        <FormLabel>Are you a churchgoer?</FormLabel>
-                        <RadioGroup onChange={handleChurchgoerChange} value={churchgoerType}>
+                        <FormLabel>Who are you?</FormLabel>
+                        <RadioGroup onChange={handleUserType} value={userType}>
                             <HStack spacing={4}>
-                                <Radio value="yes">Yes</Radio>
-                                <Radio value="no">No</Radio>
+                                <Radio value="churchgoer">Churchgoer</Radio>
+                                <Radio value="churchRep">Church Representative</Radio>
                             </HStack>
                         </RadioGroup>
                     </FormControl>
 
-                    {(newUser.isChurchgoer === true || newUser.isChurchgoer === "yes") && (
+                    {newUser.userType === "churchgoer" && (
                         <VStack spacing={4} w="full">
                             <FormControl isRequired>
                                 <FormLabel>First Name</FormLabel>
@@ -124,30 +127,10 @@ const Signup = () => {
                                     placeholder='Enter your username'
                                 />
                             </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Email</FormLabel>
-                                <Input
-                                    type="email"
-                                    value={newUser.email}
-                                    onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                                    placeholder="Enter your email"
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Password</FormLabel>
-                                <Input
-                                    type="password"
-                                    value={newUser.password}
-                                    onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
-                                    placeholder="Enter your password"
-                                />
-                            </FormControl>
                         </VStack>
                     )}
 
-                    {(newUser.isChurchgoer === false || newUser.isChurchgoer === "no") && (
+                    {newUser.userType === "churchRep" && (
                         <VStack spacing={4} w="full">
                             <FormControl isRequired>
                                 <FormLabel>Church Name</FormLabel>
@@ -157,28 +140,28 @@ const Signup = () => {
                                     placeholder="Enter your church name"
                                 />
                             </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Email</FormLabel>
-                                <Input
-                                    type="email"
-                                    value={newUser.email}
-                                    onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                                    placeholder="Enter your email"
-                                />
-                            </FormControl>
-
-                            <FormControl isRequired>
-                                <FormLabel>Password</FormLabel>
-                                <Input
-                                    type="password"
-                                    value={newUser.password}
-                                    onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
-                                    placeholder="Enter your password"
-                                />
-                            </FormControl>
                         </VStack>
                     )}
+
+                    <FormControl isRequired>
+                        <FormLabel>Email</FormLabel>
+                        <Input
+                            type="email"
+                            value={newUser.email}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                            placeholder="Enter your email"
+                        />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                        <FormLabel>Password</FormLabel>
+                        <Input
+                            type="password"
+                            value={newUser.password}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                            placeholder="Enter your password"
+                        />
+                    </FormControl>
 
                     <Button
                         colorScheme="blue"

@@ -10,21 +10,24 @@ export const authUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id);
 
-    if (user.isChurchgoer) {
+    if (user.userType === "churchgoer") {
       res.json({
         success: true,
         data: {
           _id: user._id,
+          userType: user.userType,
           firstName: user.firstName,
           lastName: user.lastName,
+          username: user.username,
           email: user.email,
         },
       });
-    } else if (!user.isChurchgoer) {
+    } else if (user.userType === "churchRep") {
       res.json({
         success: true,
         data: {
           _id: user._id,
+          userType: user.userType,
           churchName: user.churchName,
           email: user.email,
         },
@@ -38,7 +41,7 @@ export const authUser = asyncHandler(async (req, res) => {
 
 export const registerUser = asyncHandler(async (req, res) => {
   const {
-    isChurchgoer,
+    userType,
     firstName,
     lastName,
     username,
@@ -55,12 +58,12 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 
   // Validate required fields based on user type
-  if (isChurchgoer) {
+  if (userType === "churchgoer") {
     if (!firstName || !lastName || !username || !email) {
       res.status(400);
       throw new Error("Please provide all required fields for churchgoers");
     }
-  } else {
+  } else if (userType === "churchRep") {
     if (!churchName || !email) {
       res.status(400);
       throw new Error("Please provide church name for church representatives");
@@ -68,7 +71,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    isChurchgoer,
+    userType,
     firstName,
     lastName,
     username,
@@ -77,7 +80,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     password,
   });
 
-  if (user && isChurchgoer) {
+  if (user && userType === "churchgoer") {
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
@@ -86,7 +89,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
     });
-  } else if (user && !isChurchgoer) {
+  } else if (user && userType === "churchRep") {
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
@@ -114,7 +117,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findById(userId).select("-password");
 
-  if (user.isChurchgoer) {
+  if (user.userType === "churchgoer") {
     res.json({
       _id: user._id,
       firstName: user.firstName,
@@ -122,7 +125,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
     });
-  } else if (!user.isChurchgoer) {
+  } else if (user.userType === "churchRep") {
     res.json({
       _id: user._id,
       churchName: user.churchName,
@@ -152,15 +155,16 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
 
-    if (user.isChurchgoer) {
-      res.json({
+    if (user.userType === "churchgoer") {
+      generateToken(res, updatedUser._id);
+      res.status(201).json({
         _id: updatedUser._id,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         username: updatedUser.username,
         email: updatedUser.email,
       });
-    } else if (!user.isChurchgoer) {
+    } else if (user.userType === "churchRep") {
       res.json({
         _id: updatedUser._id,
         churchName: updatedUser.churchName,

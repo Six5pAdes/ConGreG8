@@ -43,7 +43,7 @@ const Home = () => {
                     ))}
                 </SimpleGrid>
 
-                {churches.length === 0 && currentUser && !currentUser.isChurchgoer && (
+                {churches.length === 0 && currentUser && currentUser.userType === "churchRep" && (
                     <Text as="span" textAlign={"center"} fontSize={"xl"} fontWeight={"medium"} color={"gray.600"}>
                         The congregation is empty. Come help populate ConGreG8!
                         <br />

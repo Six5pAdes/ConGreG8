@@ -18,7 +18,7 @@ import { useUserStore } from "../store/user";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 const ChurchInfo = () => {
-    const { id } = useParams()
+    const { churchId } = useParams()
     const { currentUser } = useUserStore();
     const { fetchChurch, deleteChurch, updateChurch } = useChurchStore()
     const [church, setChurch] = useState(null)
@@ -28,19 +28,22 @@ const ChurchInfo = () => {
     const toast = useToast()
     const navigate = useNavigate()
 
+    console.log("look over here", church)
+    console.log("look over there", updatedChurch)
+
     const { isOpen: isUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
 
     useEffect(() => {
         const loadChurch = async () => {
-            const { success, data } = await fetchChurch(id)
+            const { success, data } = await fetchChurch(churchId)
             if (success) {
                 setChurch(data)
                 setUpdatedChurch(data)
             }
         }
         loadChurch()
-    }, [id, fetchChurch])
+    }, [churchId, fetchChurch])
 
     if (!church) {
         return (
@@ -164,7 +167,7 @@ const ChurchInfo = () => {
                         </VStack>
                     </Box>
 
-                    {currentUser && !currentUser.isChurchgoer && (
+                    {currentUser && currentUser.userType === "churchRep" && (
                         <Box p={4}>
                             <HStack spacing={2}>
                                 <IconButton icon={<EditIcon />} colorScheme="teal" size="sm" onClick={onUpdateOpen} />

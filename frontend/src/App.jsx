@@ -45,9 +45,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/church/:id" element={<ChurchInfo />} />
+        <Route path="/church/:churchId" element={<ChurchInfo />} />
         <Route path="/new" element={<CreateChurch />} />
-        <Route path="/account" element={<Account />} />
+        <Route path="/profile/:userId" element={<Account />} />
       </Routes>
     </Box>
   );

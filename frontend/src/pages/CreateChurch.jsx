@@ -78,6 +78,7 @@ const CreateChurch = () => {
             image: ""
         })
         setSelectedFile(null)
+        navigate("/")
     }
 
     return <Container maxW={"container.sm"}>

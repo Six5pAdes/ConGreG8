@@ -3,35 +3,39 @@ import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
-    isChurchgoer: {
-      type: Boolean,
+    userType: {
+      type: String,
+      enum: [
+        "churchgoer",
+        "churchRep"
+      ],
       required: true,
+      default: "churchgoer",
     },
     // Fields for churchgoers
     firstName: {
       type: String,
       required: function () {
-        return this.isChurchgoer;
+        return this.userType === "churchgoer";
       },
     },
     lastName: {
       type: String,
       required: function () {
-        return this.isChurchgoer;
+        return this.userType === "churchgoer";
       },
     },
     username: {
       type: String,
       required: function () {
-        return this.isChurchgoer;
+        return this.userType === "churchgoer";
       },
-      unique: true,
     },
     // Fields for church representatives
     churchName: {
       type: String,
       required: function () {
-        return !this.isChurchgoer;
+        return this.userType === "churchRep";
       },
     },
     // Common fields
