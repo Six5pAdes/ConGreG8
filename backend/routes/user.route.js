@@ -1,6 +1,7 @@
 import express from "express";
 import {
   authUser,
+  getCurrentUser,
   registerUser,
   logoutUser,
   getUserProfile,
@@ -17,6 +18,7 @@ router.post("/login", authUser);
 router.delete("/logout", logoutUser);
 
 // Add route for getting a specific user's profile
+router.get("/current", protect, getCurrentUser);
 router.get("/:id", protect, getUserProfile);
 router.put("/:id", protect, updateUserProfile);
 router.delete("/:id", protect, deleteUserProfile);

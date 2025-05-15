@@ -180,7 +180,7 @@ const ChurchInfo = () => {
                         <ModalOverlay />
 
                         <ModalContent>
-                            <ModalHeader>Update Church</ModalHeader>
+                            <ModalHeader textAlign={"center"} paddingTop={50}>Update Church</ModalHeader>
                             <ModalCloseButton />
                             <ModalBody>
                                 <VStack spacing={4} p={4} bg={bg} rounded={"lg"} shadow={"md"}>

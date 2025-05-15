@@ -39,6 +39,27 @@ export const authUser = asyncHandler(async (req, res) => {
   }
 });
 
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  const userId = req.user._id; // Assuming user ID is stored in req.user after authentication
+
+  const user = await User.findById(userId).select("-password");
+
+  if (user) {
+    res.status(200).json({
+      _id: user._id,
+      userType: user.userType,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+      churchName: user.churchName, // Include churchName if applicable
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
 export const registerUser = asyncHandler(async (req, res) => {
   const {
     userType,
@@ -118,7 +139,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(userId).select("-password");
 
   if (user.userType === "churchgoer") {
-    res.json({
+    res.status(200).json({
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -126,7 +147,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
       email: user.email,
     });
   } else if (user.userType === "churchRep") {
-    res.json({
+    res.status(200).json({
       _id: user._id,
       churchName: user.churchName,
       email: user.email,
