@@ -13,12 +13,15 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+// Public routes
 router.route("/").get(getAllUsers).post(registerUser);
 router.post("/login", authUser);
 router.delete("/logout", logoutUser);
 
-// Add route for getting a specific user's profile
+// Protected routes - specific routes first
 router.get("/current", protect, getCurrentUser);
+
+// Protected routes - parameterized routes last
 router.get("/:id", protect, getUserProfile);
 router.put("/:id", protect, updateUserProfile);
 router.delete("/:id", protect, deleteUserProfile);

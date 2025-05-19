@@ -31,7 +31,7 @@ export const useChurchStore = create((set) => ({
 
     const data = await res.json();
     set((state) => ({ churches: [...state.churches, data.data] }));
-    return { success: true, message: "Successfully created." };
+    return { success: true, message: "Successfully created.", data: data.data };
   },
 
   fetchChurches: async () => {

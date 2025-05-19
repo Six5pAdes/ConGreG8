@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
+import Church from "../models/church.model.js";
 
 export const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -44,19 +45,33 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 
   const user = await User.findById(userId).select("-password");
 
-  if (user) {
-    res.status(200).json({
-      _id: user._id,
-      userType: user.userType,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      email: user.email,
-      churchName: user.churchName, // Include churchName if applicable
-    });
-  } else {
+  if (!user) {
     res.status(404);
     throw new Error("User not found");
+  }
+
+  if (user.userType === "churchgoer") {
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        userType: user.userType,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } else if (user.userType === "churchRep") {
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        userType: user.userType,
+        churchName: user.churchName,
+        email: user.email,
+      },
+    });
   }
 });
 
@@ -104,18 +119,26 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (user && userType === "churchgoer") {
     generateToken(res, user._id);
     res.status(201).json({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      email: user.email,
+      success: true,
+      data: {
+        _id: user._id,
+        userType: user.userType,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+      },
     });
   } else if (user && userType === "churchRep") {
     generateToken(res, user._id);
     res.status(201).json({
-      _id: user._id,
-      churchName: user.churchName,
-      email: user.email,
+      success: true,
+      data: {
+        _id: user._id,
+        userType: user.userType,
+        churchName: user.churchName,
+        email: user.email,
+      },
     });
   } else {
     res.status(400);
@@ -138,23 +161,33 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findById(userId).select("-password");
 
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
   if (user.userType === "churchgoer") {
     res.status(200).json({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
-      email: user.email,
+      success: true,
+      data: {
+        _id: user._id,
+        userType: user.userType,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+      },
     });
   } else if (user.userType === "churchRep") {
     res.status(200).json({
-      _id: user._id,
-      churchName: user.churchName,
-      email: user.email,
+      success: true,
+      data: {
+        _id: user._id,
+        userType: user.userType,
+        churchName: user.churchName,
+        email: user.email,
+      },
     });
-  } else {
-    res.status(404);
-    throw new Error("User not found");
   }
 });
 
@@ -163,38 +196,46 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findById(userId).select("-password");
 
-  if (user) {
-    user.firstName = req.body.firstName || user.firstName;
-    user.lastName = req.body.lastName || user.lastName;
-    user.email = req.body.email || user.email;
-    user.username = req.body.username || user.username;
-    user.churchName = req.body.churchName || user.churchName;
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
 
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
+  user.firstName = req.body.firstName || user.firstName;
+  user.lastName = req.body.lastName || user.lastName;
+  user.email = req.body.email || user.email;
+  user.username = req.body.username || user.username;
+  user.churchName = req.body.churchName || user.churchName;
 
-    const updatedUser = await user.save();
+  if (req.body.password) {
+    user.password = req.body.password;
+  }
 
-    if (user.userType === "churchgoer") {
-      generateToken(res, updatedUser._id);
-      res.status(201).json({
+  const updatedUser = await user.save();
+
+  if (user.userType === "churchgoer") {
+    generateToken(res, updatedUser._id);
+    res.status(201).json({
+      success: true,
+      data: {
         _id: updatedUser._id,
+        userType: updatedUser.userType,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         username: updatedUser.username,
         email: updatedUser.email,
-      });
-    } else if (user.userType === "churchRep") {
-      res.json({
+      },
+    });
+  } else if (user.userType === "churchRep") {
+    res.json({
+      success: true,
+      data: {
         _id: updatedUser._id,
+        userType: updatedUser.userType,
         churchName: updatedUser.churchName,
         email: updatedUser.email,
-      });
-    } else {
-      res.status(404);
-      throw new Error("User not found");
-    }
+      },
+    });
   }
 });
 
@@ -203,8 +244,15 @@ export const deleteUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(userId).select("-password");
 
   if (user) {
-    await User.findByIdAndDelete(user);
-    res.json({ message: "User removed" });
+    // If user is a churchRep, delete all their churches
+    if (user.userType === "churchRep") {
+      // Delete all churches associated with this user
+      await Church.deleteMany({ userId: user._id });
+    }
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+    res.json({ success: true, message: "User and associated data removed" });
   } else {
     res.status(404);
     throw new Error("User not found");

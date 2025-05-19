@@ -91,7 +91,7 @@ const Login = () => {
                     <Button
                         variant="solid"
                         width="half"
-                        backgroundColor="lightcyan"
+                        colorScheme="cyan"
                         onClick={() => navigate('/signup')}
                     >
                         Don't have an account? Sign In

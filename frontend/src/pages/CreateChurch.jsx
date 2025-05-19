@@ -50,7 +50,7 @@ const CreateChurch = () => {
             ? { ...newChurch, imageFile: selectedFile }
             : newChurch
 
-        const { success, message } = await createChurch(churchData)
+        const { success, message, data } = await createChurch(churchData)
         if (!success) {
             toast({
                 title: "Error",
@@ -65,20 +65,20 @@ const CreateChurch = () => {
                 status: "success",
                 isClosable: true,
             })
+            setNewChurch({
+                name: "",
+                address: "",
+                city: "",
+                state: "",
+                description: "",
+                phone: "",
+                email: "",
+                website: "",
+                image: ""
+            })
+            setSelectedFile(null)
+            navigate(`/church/${data._id}`)
         }
-        setNewChurch({
-            name: "",
-            address: "",
-            city: "",
-            state: "",
-            description: "",
-            phone: "",
-            email: "",
-            website: "",
-            image: ""
-        })
-        setSelectedFile(null)
-        navigate("/")
     }
 
     return <Container maxW={"container.sm"}>

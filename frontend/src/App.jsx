@@ -19,7 +19,7 @@ function App() {
     // Check if we have a stored user session
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/users/session', {
+        const response = await fetch('/api/users/current', {
           credentials: 'include'
         });
         const data = await response.json();

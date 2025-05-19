@@ -28,9 +28,6 @@ const ChurchInfo = () => {
     const toast = useToast()
     const navigate = useNavigate()
 
-    console.log("look over here", church)
-    console.log("look over there", updatedChurch)
-
     const { isOpen: isUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
 

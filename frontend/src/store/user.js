@@ -7,12 +7,15 @@ export const useUserStore = create(
       users: [],
       currentUser: null,
       setUsers: (users) => set({ users }),
-      setCurrentUser: (user) => set({
-        currentUser: user,
-      }),
+      setCurrentUser: (user) =>
+        set({
+          currentUser: user,
+        }),
 
       fetchUser: async (uid) => {
-        const res = await fetch(`/api/users/${uid}`);
+        const res = await fetch(`/api/users/${uid}`, {
+          credentials: "include",
+        });
         const data = await res.json();
         if (!data.success) return { success: false, message: data.message };
         return { success: true, data: data.data };
@@ -43,19 +46,30 @@ export const useUserStore = create(
           };
         }
 
-        const res = await fetch("/api/users", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUser),
-        });
+        try {
+          const res = await fetch("/api/users", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newUser),
+          });
 
-        const data = await res.json();
-        if (!data.success) return { success: false, message: data.message };
+          const data = await res.json();
+          if (!data.success) return { success: false, message: data.message };
 
-        set((state) => ({ users: [...state.users, data.data] }));
-        return { success: true, message: "User created successfully." };
+          set((state) => ({
+            users: [...state.users, data.data],
+            currentUser: data.data,
+          }));
+          return { success: true, message: "User created successfully." };
+        } catch (error) {
+          console.error("Error creating user:", error);
+          return {
+            success: false,
+            message: "Failed to create user. Please try again.",
+          };
+        }
       },
 
       updateUser: async (uid, updatedUser) => {
@@ -88,8 +102,9 @@ export const useUserStore = create(
 
         set((state) => ({
           users: state.users.filter((user) => user._id !== uid),
+          currentUser: null,
         }));
-        return { success: true, message: "User deleted successfully." };
+        return { success: true, message: data.message };
       },
 
       login: async (credentials) => {
@@ -137,9 +152,24 @@ export const useUserStore = create(
         }
       },
 
-      logout: () => {
-        set({ currentUser: null });
-        return { success: true, message: "Logged out successfully." };
+      logout: async () => {
+        try {
+          const res = await fetch("/api/users/logout", {
+            method: "DELETE",
+            credentials: "include",
+          });
+          if (!res.ok) {
+            throw new Error("Logout failed");
+          }
+          set({ currentUser: null });
+          return { success: true, message: "Logged out successfully." };
+        } catch (error) {
+          console.error("Logout error:", error);
+          return {
+            success: false,
+            message: "Failed to logout. Please try again.",
+          };
+        }
       },
 
       fetchAllUsers: async () => {

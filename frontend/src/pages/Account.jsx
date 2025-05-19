@@ -15,9 +15,6 @@ const Account = () => {
     const toast = useToast()
     const navigate = useNavigate()
 
-    console.log("look over here", user)
-    console.log("look over there", updatedUser)
-
     const { isOpen: isUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
 
@@ -74,7 +71,7 @@ const Account = () => {
                 duration: 5000,
                 isClosable: true,
             })
-            const { success: fetchSuccess, data } = await fetchUser(id)
+            const { success: fetchSuccess, data } = await fetchUser(userId)
             if (fetchSuccess) {
                 setUser(data)
                 setUpdatedUser(data)
@@ -82,10 +79,27 @@ const Account = () => {
         }
     }
 
-    const handleLogout = (e) => {
+    const handleLogout = async (e) => {
         e.preventDefault();
-        logout()
-        navigate('/')
+        const { success, message } = await logout();
+        if (success) {
+            toast({
+                title: "Success",
+                description: message,
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+            navigate('/');
+        } else {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+        }
     }
 
     return (
