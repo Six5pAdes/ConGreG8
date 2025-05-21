@@ -3,6 +3,8 @@ import { protect } from "../middleware/authMiddleware.js";
 
 import {
   getReviews,
+  getReviewsByUser,
+  getReviewsByChurch,
   getOneReview,
   createReview,
   updateReview,
@@ -12,6 +14,8 @@ import {
 const router = express.Router();
 
 router.get("/", getReviews);
+router.get("/users/:id", getReviewsByUser);
+router.get("/churches/:id", getReviewsByChurch);
 router.get("/:id", getOneReview);
 router.post("/", protect, createReview);
 router.put("/:id", protect, updateReview);

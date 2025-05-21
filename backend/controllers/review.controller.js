@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 import Review from "../models/review.model.js";
-import User from "../models/user.model.js";
-import Church from "../models/church.model.js";
 
 export const getReviews = async (req, res) => {
   try {

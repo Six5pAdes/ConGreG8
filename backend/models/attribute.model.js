@@ -6,11 +6,18 @@ const attributeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Church",
     },
-    size: { type: Number, required: true },
+    size: {
+      type: String,
+      enum: [
+        "small (25-200)",
+        "midsize (200-400)",
+        "big (400-2000)",
+        "megachurch (2000+)",
+      ],
+    },
     ageGroup: {
       type: String,
       enum: ["family", "youngAdult", "adult", "senior"],
-      required: true,
     },
     ethnicity: {
       type: String,
@@ -22,7 +29,6 @@ const attributeSchema = new mongoose.Schema(
         "pacificIslander",
         "other",
       ],
-      required: true,
     },
     language: {
       type: String,
@@ -35,7 +41,6 @@ const attributeSchema = new mongoose.Schema(
         "korean",
         "other",
       ],
-      required: true,
     },
     denomination: {
       type: String,
@@ -50,15 +55,17 @@ const attributeSchema = new mongoose.Schema(
         "presbyterian",
         "non-denominational",
       ],
-      required: true,
     },
-    serving: { type: Boolean, default: "no" },
+    volunteering: { type: Boolean, default: "no" },
+    serviceNumber: { type: Number },
     serviceTime: {
       type: String,
       enum: ["morning", "afternoon", "evening"],
-      required: true,
     },
-    serviceNumber: { type: Number, required: true },
+    participatory: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -8,9 +8,8 @@ const volunteerSchema = new mongoose.Schema(
     },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    active: { type: Boolean, default: true },
+    isActive: { type: Boolean, default: true },
     isMember: { type: Boolean, default: false },
-    isVolunteer: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -1,7 +1,8 @@
-import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack, HStack, FormControl, FormLabel, Textarea } from '@chakra-ui/react'
+import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack, HStack, FormControl, FormLabel, Textarea, Select } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
+import { US_STATES } from '../../backend/models/church.model'
 
 const CreateChurch = () => {
     const [newChurch, setNewChurch] = useState({
@@ -120,12 +121,18 @@ const CreateChurch = () => {
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel>Church State</FormLabel>
-                        <Input
-                            placeholder='Church State'
+                        <Select
+                            placeholder='Select state'
                             name='state'
                             value={newChurch.state}
                             onChange={(e) => setNewChurch({ ...newChurch, state: e.target.value })}
-                        />
+                        >
+                            {Object.entries(US_STATES).map(([abbr, name]) => (
+                                <option key={abbr} value={abbr}>
+                                    {abbr} - {name}
+                                </option>
+                            ))}
+                        </Select>
                     </FormControl>
                     <FormControl >
                         <FormLabel>Church Description</FormLabel>
