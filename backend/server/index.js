@@ -6,6 +6,11 @@ import cookieParser from "cookie-parser";
 import { notFound, errorHandler } from "../middleware/errorMiddleware.js";
 import userRoutes from "../routes/user.route.js";
 import churchRoutes from "../routes/church.route.js";
+import reviewRoutes from "../routes/review.route.js";
+import userPrefRoutes from "../routes/userPref.route.js";
+import attributeRoutes from "../routes/attribute.route.js";
+import volunteerRoutes from "../routes/volunteer.route.js";
+import savedChurchRoutes from "../routes/saved.route.js";
 
 dotenv.config();
 // console.log("JWT_SECRET:", process.env.JWT_SECRET);
@@ -21,6 +26,11 @@ app.use(cookieParser());
 
 app.use("/api/users", userRoutes);
 app.use("/api/churches", churchRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/user-prefs", userPrefRoutes);
+app.use("/api/attributes", attributeRoutes);
+app.use("/api/volunteering", volunteerRoutes);
+app.use("/api/saved", savedChurchRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const serviceSchema = new mongoose.Schema(
+const volunteerSchema = new mongoose.Schema(
   {
     churchId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,4 +18,4 @@ const serviceSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("ServiceOpportunity", serviceSchema);
+export default mongoose.model("VolunteerOpportunity", volunteerSchema);

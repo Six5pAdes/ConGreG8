@@ -5,10 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     userType: {
       type: String,
-      enum: [
-        "churchgoer",
-        "churchRep"
-      ],
+      enum: ["churchgoer", "churchRep"],
       required: true,
       default: "churchgoer",
     },

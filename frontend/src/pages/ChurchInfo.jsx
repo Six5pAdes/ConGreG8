@@ -93,7 +93,7 @@ const ChurchInfo = () => {
                 isClosable: true,
             })
             // Refresh the church data
-            const { success: fetchSuccess, data } = await fetchChurch(id)
+            const { success: fetchSuccess, data } = await fetchChurch(churchId)
             if (fetchSuccess) {
                 setChurch(data)
                 setUpdatedChurch(data)
