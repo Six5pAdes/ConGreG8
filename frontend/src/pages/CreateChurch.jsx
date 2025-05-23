@@ -2,7 +2,7 @@ import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToa
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
-import { US_STATES } from '../../backend/models/church.model'
+import { US_STATES } from '../../../backend/models/church.model.js'
 
 const CreateChurch = () => {
     const [newChurch, setNewChurch] = useState({
