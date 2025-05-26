@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const attributeSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     churchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Church",
@@ -9,10 +13,10 @@ const attributeSchema = new mongoose.Schema(
     size: {
       type: String,
       enum: [
-        "small (25-200)",
-        "midsize (200-400)",
-        "big (400-2000)",
-        "megachurch (2000+)",
+        "small", // 25-200
+        "midsize", // 200-400
+        "big", // 400-2000
+        "megachurch", // 2000+
       ],
     },
     ageGroup: {

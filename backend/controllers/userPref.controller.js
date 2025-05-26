@@ -21,7 +21,7 @@ export const getSingleUserPref = async (req, res) => {
   }
 
   try {
-    const userPref = await UserPreference.findById(id);
+    const userPref = await UserPreference.find({ userId: id });
     if (!userPref) {
       return res
         .status(404)
@@ -107,45 +107,42 @@ export const updateUserPref = async (req, res) => {
   }
 };
 
-// export const deleteUserPref = async (req, res) => {
-//   const { id } = req.params;
+export const deleteUserPref = async (req, res) => {
+  const { id } = req.params;
 
-//   if (req.user.userType === "churchRep") {
-//     return res.status(403).json({
-//       success: false,
-//       message: "Only churchgoers can delete their preferences.",
-//     });
-//   }
+  if (req.user.userType === "churchRep") {
+    return res.status(403).json({
+      success: false,
+      message: "Only churchgoers can delete their preferences.",
+    });
+  }
 
-//   if (!mongoose.Types.ObjectId.isValid(id)) {
-//     return res
-//       .status(404)
-//       .json({ success: false, message: "Invalid User Preference Id" });
-//   }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Invalid User Preference Id" });
+  }
 
-//   try {
-//     const userPrefToDelete = await UserPref.findById(id);
-//     if (!userPrefToDelete) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "UserPref not found" });
-//     }
+  try {
+    const userPrefToDelete = await UserPreference.findById(id);
+    if (!userPrefToDelete) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User Preference not found" });
+    }
 
-//     if (
-//       !userPrefToDelete.userId ||
-//       userPrefToDelete.userId.toString() !== req.user._id.toString()
-//     ) {
-//       return res.status(403).json({
-//         success: false,
-//         message: "You are not authorized to delete this user preference(s)",
-//       });
-//     }
+    if (userPrefToDelete.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this user preference",
+      });
+    }
 
-//     await UserPref.findByIdAndDelete(id);
+    await UserPreference.findByIdAndDelete(id);
 
-//     res.status(200).json({ success: true, message: "UserPref deleted" });
-//   } catch (error) {
-//     console.log("error in deleting userPref:", error.message);
-//     res.status(500).json({ success: false, message: "Server Error" });
-//   }
-// };
+    res.status(200).json({ success: true, message: "User Preference deleted" });
+  } catch (error) {
+    console.error("Error in deleting user preference:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};

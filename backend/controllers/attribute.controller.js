@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import ChurchAttribute from "../models/attribute.model.js";
+import Church from "../models/church.model.js";
 
 export const getChurchAttrs = async (req, res) => {
   try {
@@ -21,7 +22,7 @@ export const getSingleChurchAttr = async (req, res) => {
   }
 
   try {
-    const churchAttr = await ChurchAttribute.findById(id);
+    const churchAttr = await ChurchAttribute.find({ churchId: id });
     if (!churchAttr) {
       return res
         .status(404)
@@ -45,8 +46,36 @@ export const createChurchAttr = async (req, res) => {
     });
   }
 
+  if (!churchAttr.churchId) {
+    return res.status(400).json({
+      success: false,
+      message: "Church ID is required",
+    });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(churchAttr.churchId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Church ID",
+    });
+  }
+
   try {
-    churchAttr.churchId = req.church._id;
+    // Verify that the church belongs to the user
+    const church = await Church.findById(churchAttr.churchId);
+    if (!church) {
+      return res.status(404).json({
+        success: false,
+        message: "Church not found",
+      });
+    }
+
+    if (church.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to add attributes to this church",
+      });
+    }
 
     const newChurchAttr = new ChurchAttribute(churchAttr);
     await newChurchAttr.save();
@@ -82,10 +111,16 @@ export const updateChurchAttr = async (req, res) => {
       .json({ success: false, message: "Church Attribute not found" });
   }
 
-  if (
-    !existingChurchAttr.userId ||
-    existingChurchAttr.userId.toString() !== req.user._id.toString()
-  ) {
+  // Verify that the church belongs to the user
+  const church = await Church.findById(existingChurchAttr.churchId);
+  if (!church) {
+    return res.status(404).json({
+      success: false,
+      message: "Associated church not found",
+    });
+  }
+
+  if (church.userId.toString() !== req.user._id.toString()) {
     return res.status(403).json({
       success: false,
       message: "You are not authorized to update this church's attributes",
@@ -102,6 +137,57 @@ export const updateChurchAttr = async (req, res) => {
     );
     res.status(200).json({ success: true, data: updatedChurchAttr });
   } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const deleteChurchAttr = async (req, res) => {
+  const { id } = req.params;
+
+  if (req.user.userType === "churchgoer") {
+    return res.status(403).json({
+      success: false,
+      message: "Only church reps can delete their church's attributes.",
+    });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Invalid Church Attribute Id" });
+  }
+
+  try {
+    const churchAttrToDelete = await ChurchAttribute.findById(id);
+    if (!churchAttrToDelete) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Church Attributes not found" });
+    }
+
+    // Verify that the church belongs to the user
+    const church = await Church.findById(churchAttrToDelete.churchId);
+    if (!church) {
+      return res.status(404).json({
+        success: false,
+        message: "Associated church not found",
+      });
+    }
+
+    if (church.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this church's attributes",
+      });
+    }
+
+    await ChurchAttribute.findByIdAndDelete(id);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Church Attributes deleted" });
+  } catch (error) {
+    console.error("Error in deleting church attributes:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };

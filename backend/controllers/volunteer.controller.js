@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import VolunteerOpportunity from "../models/volunteer.model.js";
+import Church from "../models/church.model.js";
 
 export const getVolunteerOps = async (req, res) => {
   try {
-    const reviews = await VolunteerOpportunity.find({});
-    res.status(200).json({ success: true, data: reviews });
+    const volunteerOps = await VolunteerOpportunity.find({});
+    res.status(200).json({ success: true, data: volunteerOps });
   } catch (error) {
     console.log("Error in fetching volunteer ops:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -69,8 +70,8 @@ export const createVolunteerOp = async (req, res) => {
   if (
     !volunteerOp.title ||
     !volunteerOp.description ||
-    !volunteerOp.isActive ||
-    !volunteerOp.isMember
+    volunteerOp.isActive === undefined ||
+    volunteerOp.isMember === undefined
   ) {
     return res
       .status(400)
@@ -92,9 +93,24 @@ export const createVolunteerOp = async (req, res) => {
   }
 
   try {
-    volunteerOp.churchId = req.church._id;
+    // Verify that the church belongs to the user
+    const church = await Church.findById(volunteerOp.churchId);
+    if (!church) {
+      return res.status(404).json({
+        success: false,
+        message: "Church not found",
+      });
+    }
 
-    const newVolunteerOp = new ChurchAttribute(volunteerOp);
+    if (church.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You are not authorized to add volunteer opportunities to this church",
+      });
+    }
+
+    const newVolunteerOp = new VolunteerOpportunity(volunteerOp);
     await newVolunteerOp.save();
 
     res.status(201).json({ success: true, data: newVolunteerOp });
@@ -129,21 +145,27 @@ export const updateVolunteerOp = async (req, res) => {
       .json({ success: false, message: "Volunteer Opportunity not found" });
   }
 
-  if (
-    !existingVolunteerOp.userId ||
-    existingVolunteerOp.userId.toString() !== req.user._id.toString()
-  ) {
+  // Verify that the church belongs to the user
+  const church = await Church.findById(existingVolunteerOp.churchId);
+  if (!church) {
+    return res.status(404).json({
+      success: false,
+      message: "Associated church not found",
+    });
+  }
+
+  if (church.userId.toString() !== req.user._id.toString()) {
     return res.status(403).json({
       success: false,
-      message: "You are not authorized to update this volunteer op",
+      message: "You are not authorized to update this volunteer opportunity",
     });
   }
 
   if (
     !volunteerOp.title ||
     !volunteerOp.description ||
-    !volunteerOp.isActive ||
-    !volunteerOp.isMember
+    volunteerOp.isActive === undefined ||
+    volunteerOp.isMember === undefined
   ) {
     return res
       .status(400)
@@ -189,10 +211,16 @@ export const deleteVolunteerOp = async (req, res) => {
         .json({ success: false, message: "Volunteer Opportunity not found" });
     }
 
-    if (
-      !volunteerOpToDelete.userId ||
-      volunteerOpToDelete.userId.toString() !== req.user._id.toString()
-    ) {
+    // Verify that the church belongs to the user
+    const church = await Church.findById(volunteerOpToDelete.churchId);
+    if (!church) {
+      return res.status(404).json({
+        success: false,
+        message: "Associated church not found",
+      });
+    }
+
+    if (church.userId.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to delete this volunteer opportunity",
@@ -205,7 +233,7 @@ export const deleteVolunteerOp = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Volunteer Opportunity deleted" });
   } catch (error) {
-    console.log("error in deleting review:", error.message);
+    console.error("Error in deleting volunteer opportunity:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };

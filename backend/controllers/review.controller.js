@@ -12,35 +12,35 @@ export const getReviews = async (req, res) => {
 };
 
 export const getReviewsByUser = async (req, res) => {
-  const { userId } = req.params;
+  const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ success: false, message: "Invalid User Id" });
   }
 
   try {
-    const reviews = await Review.find({ userId });
+    const reviews = await Review.find({ userId: id });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
-    console.log("Error in fetching user reviews:", error.message);
+    console.log("Error in fetching user's reviews:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 export const getReviewsByChurch = async (req, res) => {
-  const { churchId } = req.params;
+  const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(churchId)) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res
       .status(404)
       .json({ success: false, message: "Invalid Church Id" });
   }
 
   try {
-    const reviews = await Review.find({ churchId });
+    const reviews = await Review.find({ churchId: id });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
-    console.log("Error in fetching church reviews:", error.message);
+    console.log("Error in fetching church's reviews:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };

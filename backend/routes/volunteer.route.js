@@ -12,9 +12,12 @@ import {
 
 const router = express.Router();
 
+// Public routes
 router.get("/", getVolunteerOps);
-router.get("/", getVolunteerOpsByChurch);
-router.get("/", getOneVolunteerOp);
+router.get("/churches/:churchId", getVolunteerOpsByChurch);
+router.get("/:id", getOneVolunteerOp);
+
+// Protected routes
 router.post("/", protect, createVolunteerOp);
 router.put("/:id", protect, updateVolunteerOp);
 router.delete("/:id", protect, deleteVolunteerOp);

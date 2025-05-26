@@ -9,10 +9,10 @@ const userPreferenceSchema = new mongoose.Schema(
     size: {
       type: String,
       enum: [
-        "small (25-200)",
-        "midsize (200-400)",
-        "big (400-2000)",
-        "megachurch (2000+)",
+        "small", // 25-200
+        "midsize", // 200-400
+        "big", // 400-2000
+        "megachurch", // 2000+
       ],
     },
     ageGroup: {
@@ -56,7 +56,7 @@ const userPreferenceSchema = new mongoose.Schema(
         "non-denominational",
       ],
     },
-    volunteering: { type: Boolean, default: "no" },
+    volunteering: { type: Boolean, default: false },
     serviceNumber: { type: Number },
     serviceTime: {
       type: String,

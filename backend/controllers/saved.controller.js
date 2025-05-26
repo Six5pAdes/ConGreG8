@@ -11,6 +11,22 @@ export const getSaved = async (req, res) => {
   }
 };
 
+export const getSavedByUser = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ success: false, message: "Invalid User Id" });
+  }
+
+  try {
+    const saved = await SavedChurch.find({ userId: id });
+    res.status(200).json({ success: true, data: saved });
+  } catch (error) {
+    console.log("Error in fetching user saved church(es):", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 export const addSaved = async (req, res) => {
   const saved = req.body;
 
