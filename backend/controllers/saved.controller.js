@@ -11,6 +11,39 @@ export const getSaved = async (req, res) => {
   }
 };
 
+export const getSingleSaved = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Invalid Saved Church Id" });
+  }
+
+  try {
+    const saved = await SavedChurch.findById(id);
+
+    if (!saved) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Saved Church not found" });
+    }
+
+    // Check if the user is authorized to view this saved church
+    if (saved.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to view this saved church",
+      });
+    }
+
+    res.status(200).json({ success: true, data: saved });
+  } catch (error) {
+    console.log("Error in fetching saved church:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 export const getSavedByUser = async (req, res) => {
   const { id } = req.params;
 

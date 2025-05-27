@@ -1,0 +1,119 @@
+import { create } from "zustand";
+
+export const useUserPrefStore = create((set) => ({
+  userPrefs: [],
+  isLoading: false,
+  error: null,
+
+  setUserPrefs: (userPrefs) => set({ userPrefs }),
+  setLoading: (isLoading) => set({ isLoading }),
+  setError: (error) => set({ error }),
+
+  createUserPref: async (newUserPref) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const res = await fetch("/api/user-prefs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUserPref),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      set((state) => ({ reviews: [...state.reviews, data.data] }));
+      return {
+        success: true,
+        message: "Successfully created.",
+        data: data.data,
+      };
+    } catch (error) {
+      set({ error: error.message });
+      return { success: false, message: error.message };
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchUserPrefs: async () => {
+    try {
+      set({ isLoading: true, error: null });
+      const res = await fetch("/api/user-prefs");
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      set({ reviews: data.data });
+    } catch (error) {
+      set({ error: error.message });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchSingleUserPref: async (upid) => {
+    try {
+      set({ isLoading: true, error: null });
+      const res = await fetch(`/api/user-prefs/${upid}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return { success: true, data: data.data };
+    } catch (error) {
+      set({ error: error.message });
+      return { success: false, message: error.message };
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateUserPref: async (upid, updatedUserPref) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const res = await fetch(`/api/user-prefs/${upid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUserPref),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      set((state) => ({
+        userPrefs: state.userPrefs.map((userPref) =>
+          userPref._id === upid ? data.data : userPref
+        ),
+      }));
+
+      return { success: true, message: data.message };
+    } catch (error) {
+      set({ error: error.message });
+      return { success: false, message: error.message };
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteUserPref: async (upid) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const res = await fetch(`/api/user-prefs/${upid}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      set((state) => ({
+        userPrefs: state.userPrefs.filter((userPref) => userPref._id !== upid),
+      }));
+
+      return { success: true, message: data.message };
+    } catch (error) {
+      set({ error: error.message });
+      return { success: false, message: error.message };
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+}));

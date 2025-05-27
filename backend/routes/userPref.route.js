@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 router.get("/", getUserPrefs);
-router.get("/:id", protect, getSingleUserPref);
+router.get("/:id", getSingleUserPref);
 router.post("/", protect, createUserPref);
 router.put("/:id", protect, updateUserPref);
 router.delete("/:id", protect, deleteUserPref);

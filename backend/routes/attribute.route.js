@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 router.get("/", getChurchAttrs);
-router.get("/:id", protect, getSingleChurchAttr);
+router.get("/:id", getSingleChurchAttr);
 router.post("/", protect, createChurchAttr);
 router.put("/:id", protect, updateChurchAttr);
 router.delete("/:id", protect, deleteChurchAttr);
