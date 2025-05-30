@@ -45,7 +45,7 @@ const ChurchCard = ({ church }) => {
         if (e.target.closest('button')) {
             return;
         }
-        navigate(`/church/${church._id}`);
+        navigate(`/churches/${church._id}`);
     };
 
     const handleDelete = async (cid) => {

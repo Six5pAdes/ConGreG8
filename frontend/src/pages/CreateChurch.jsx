@@ -78,7 +78,7 @@ const CreateChurch = () => {
                 image: ""
             })
             setSelectedFile(null)
-            navigate(`/church/${data._id}`)
+            navigate(`/churches/${data._id}`)
         }
     }
 

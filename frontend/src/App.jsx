@@ -9,8 +9,10 @@ import Login from "./pages/Login";
 import CreateChurch from "./pages/CreateChurch";
 import Account from "./pages/Account";
 import ChurchInfo from "./pages/ChurchInfo";
+import ReviewForm from "./pages/ReviewForm";
 
 import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -45,10 +47,13 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/church/:churchId" element={<ChurchInfo />} />
+        <Route path="/churches/:churchId" element={<ChurchInfo />} />
         <Route path="/new" element={<CreateChurch />} />
+        <Route path="/review-new" element={<ReviewForm />} />
+        <Route path="/review-edit/:reviewId" element={<ReviewForm />} />
         <Route path="/profile/:userId" element={<Account />} />
       </Routes>
+      <Footer />
     </Box>
   );
 }
