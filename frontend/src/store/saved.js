@@ -30,7 +30,7 @@ export const useSavedStore = create((set) => ({
         message: "Successfully created.",
         data: data.data,
       };
-    } catch {
+    } catch (error) {
       set({ error: error.message });
       return { success: false, message: error.message };
     } finally {
@@ -70,7 +70,7 @@ export const useSavedStore = create((set) => ({
   fetchSavedByUser: async (sidu) => {
     try {
       set({ isLoading: true, error: null });
-      const res = await fetch(`/api/saved/users/${sidu}`);
+      const res = await fetch(`/api/saved/user/${sidu}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
       set({ reviews: data.data });

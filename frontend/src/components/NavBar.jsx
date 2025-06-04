@@ -59,6 +59,16 @@ const NavBar = () => {
                                     <MenuItem as={Link} to={`/profile/${currentUser._id}`}>
                                         {currentUser.email}
                                     </MenuItem>
+                                    {currentUser.userType === "churchgoer" && (
+                                        <>
+                                            <MenuItem as={Link} to={`/profile/${currentUser._id}/reviews`}>
+                                                {currentUser.username}'s Reviews
+                                            </MenuItem>
+                                            <MenuItem as={Link} to={`/profile/${currentUser._id}/saved`}>
+                                                {currentUser.username}'s Saved Churches
+                                            </MenuItem>
+                                        </>
+                                    )}
                                     <MenuItem onClick={handleLogout}>
                                         <LuLogOut style={{ marginRight: "8px" }} />
                                         Logout

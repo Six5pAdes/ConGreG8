@@ -3,7 +3,9 @@ import Review from "../models/review.model.js";
 
 export const getReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({});
+    const reviews = await Review.find({})
+      .populate("userId", "firstName lastName")
+      .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
     console.log("Error in fetching reviews:", error.message);
@@ -19,7 +21,9 @@ export const getReviewsByUser = async (req, res) => {
   }
 
   try {
-    const reviews = await Review.find({ userId: id });
+    const reviews = await Review.find({ userId: id })
+      .populate("userId", "firstName lastName")
+      .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
     console.log("Error in fetching user's reviews:", error.message);
@@ -37,7 +41,9 @@ export const getReviewsByChurch = async (req, res) => {
   }
 
   try {
-    const reviews = await Review.find({ churchId: id });
+    const reviews = await Review.find({ churchId: id })
+      .populate("userId", "firstName lastName")
+      .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
     console.log("Error in fetching church's reviews:", error.message);
@@ -55,7 +61,10 @@ export const getOneReview = async (req, res) => {
   }
 
   try {
-    const review = await Review.findById(id);
+    const review = await Review.findById(id).populate(
+      "userId",
+      "firstName lastName"
+    );
     if (!review) {
       return res
         .status(404)

@@ -160,7 +160,14 @@ const ReviewForm = () => {
                             <HStack spacing={4} width="100%" justifyContent="flex-end">
                                 <Button
                                     variant="ghost"
-                                    onClick={() => navigate(`/churches/${churchId}`)}
+                                    onClick={() => {
+                                        const fromPage = location.state?.from;
+                                        if (fromPage === 'userReview') {
+                                            navigate(`/profile/${currentUser._id}/reviews`);
+                                        } else {
+                                            navigate(`/churches/${churchId}`);
+                                        }
+                                    }}
                                 >
                                     Cancel
                                 </Button>

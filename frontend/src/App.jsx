@@ -6,10 +6,14 @@ import { useUserStore } from './store/user';
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+
 import CreateChurch from "./pages/CreateChurch";
-import Account from "./pages/Account";
 import ChurchInfo from "./pages/ChurchInfo";
 import ReviewForm from "./pages/ReviewForm";
+
+import Account from "./pages/Account";
+import UserReviews from "./pages/UserReviews";
+import Saved from './pages/Saved'
 
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
@@ -52,6 +56,8 @@ function App() {
         <Route path="/review-new" element={<ReviewForm />} />
         <Route path="/review-edit/:reviewId" element={<ReviewForm />} />
         <Route path="/profile/:userId" element={<Account />} />
+        <Route path="/profile/:userId/reviews" element={<UserReviews />} />
+        <Route path="/profile/:userId/saved" element={<Saved />} />
       </Routes>
       <Footer />
     </Box>

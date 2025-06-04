@@ -19,4 +19,13 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// Automatically populate user data on find
+reviewSchema.pre("find", function () {
+  this.populate("userId", "firstName lastName");
+});
+
+reviewSchema.pre("findOne", function () {
+  this.populate("userId", "firstName lastName");
+});
+
 export default mongoose.model("Review", reviewSchema);

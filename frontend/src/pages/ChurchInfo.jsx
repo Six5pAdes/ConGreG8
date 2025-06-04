@@ -15,9 +15,9 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
 import { useUserStore } from "../store/user"
-import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons"
+import { useSavedStore } from '../store/saved'
+import { DeleteIcon, EditIcon, AddIcon, StarIcon } from "@chakra-ui/icons"
 import ReviewCard from '../components/ReviewCard'
-import ReviewForm from '../pages/ReviewForm'
 import { useReviewStore } from '../store/review'
 
 const ChurchInfo = () => {
@@ -25,14 +25,31 @@ const ChurchInfo = () => {
     const { currentUser } = useUserStore()
     const { fetchChurch, deleteChurch, updateChurch } = useChurchStore()
     const { fetchReviewByChurch, createReview, updateReview, deleteReview } = useReviewStore()
+    const { createSaved, deleteSaved, fetchSavedByUser } = useSavedStore()
     const [church, setChurch] = useState(null)
     const [updatedChurch, setUpdatedChurch] = useState(null)
     const [reviews, setReviews] = useState([])
     const [selectedReview, setSelectedReview] = useState(null)
+    const [isSaved, setIsSaved] = useState(false)
+    const [savedId, setSavedId] = useState(null)
     const bg = useColorModeValue("white", "gray.800")
     const textColor = useColorModeValue("gray.800", "whiteAlpha.900")
     const toast = useToast()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (!churchId) {
+            toast({
+                title: "Error",
+                description: "Invalid church ID",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            })
+            navigate('/')
+            return
+        }
+    }, [churchId, navigate, toast])
 
     const { isOpen: isChurchUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
     const { isOpen: isChurchDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -58,6 +75,22 @@ const ChurchInfo = () => {
         }
         loadReviews()
     }, [churchId, fetchReviewByChurch])
+
+    useEffect(() => {
+        const checkSavedStatus = async () => {
+            if (currentUser && currentUser.userType === "churchgoer") {
+                const { success, data } = await fetchSavedByUser(currentUser._id)
+                if (success) {
+                    const savedChurch = data.find(saved => saved.churchId === churchId)
+                    if (savedChurch) {
+                        setIsSaved(true)
+                        setSavedId(savedChurch._id)
+                    }
+                }
+            }
+        }
+        checkSavedStatus()
+    }, [currentUser, churchId, fetchSavedByUser])
 
     if (!church) {
         return (
@@ -117,32 +150,6 @@ const ChurchInfo = () => {
         }
     }
 
-    const handleReviewUpdate = async (reviewId, reviewData) => {
-        const { success, message } = await updateReview(reviewId, reviewData)
-        if (success) {
-            toast({
-                title: "Success",
-                description: "Review updated successfully",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            })
-            onReviewFormClose()
-            const { success: fetchSuccess, data } = await fetchReviewByChurch(churchId)
-            if (fetchSuccess) {
-                setReviews(data)
-            }
-        } else {
-            toast({
-                title: "Error",
-                description: message,
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            })
-        }
-    }
-
     const handleReviewDelete = async (reviewId) => {
         setSelectedReview(reviews.find(review => review._id === reviewId))
         onReviewDeleteOpen()
@@ -174,6 +181,54 @@ const ChurchInfo = () => {
         onReviewDeleteClose()
     }
 
+    const handleSaveChurch = async () => {
+        if (!isSaved) {
+            const { success, message } = await createSaved({
+                userId: currentUser._id,
+                churchId: churchId
+            })
+            if (success) {
+                setIsSaved(true)
+                toast({
+                    title: "Success",
+                    description: "Church saved successfully",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: "Error",
+                    description: message,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                })
+            }
+        } else {
+            const { success, message } = await deleteSaved(savedId)
+            if (success) {
+                setIsSaved(false)
+                setSavedId(null)
+                toast({
+                    title: "Success",
+                    description: "Church removed from saved list",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: "Error",
+                    description: message,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                })
+            }
+        }
+    }
+
     return (
         <Container maxW="container.xl" py={14}>
             <VStack spacing={8} align="stretch">
@@ -191,9 +246,19 @@ const ChurchInfo = () => {
                         objectFit="cover"
                     />
                     <Box p={8}>
-                        <Heading as="h1" size="2xl" mb={4} color="teal.500">
-                            {church.name}
-                        </Heading>
+                        <HStack justify="space-between" align="center" mb={4}>
+                            <Heading as="h1" size="2xl" color="teal.500">
+                                {church.name}
+                            </Heading>
+                            {currentUser && currentUser.userType === "churchgoer" && (
+                                <IconButton
+                                    icon={<StarIcon />}
+                                    colorScheme={isSaved ? "yellow" : "gray"}
+                                    onClick={handleSaveChurch}
+                                    aria-label={isSaved ? "Remove from saved" : "Save church"}
+                                />
+                            )}
+                        </HStack>
 
                         <VStack align="stretch" spacing={4}>
                             <Box>
@@ -266,9 +331,6 @@ const ChurchInfo = () => {
 
                     <VStack spacing={4} align="stretch">
                         {reviews.map((review) => {
-                            console.log('Review:', review)
-                            console.log('Current User:', currentUser)
-                            console.log('User ID Match:', currentUser?._id === review.userId)
                             return (
                                 <Box key={review._id}>
                                     <ReviewCard
@@ -276,14 +338,14 @@ const ChurchInfo = () => {
                                         onEdit={
                                             currentUser &&
                                                 currentUser.userType === "churchgoer" &&
-                                                currentUser._id === review.userId
+                                                currentUser._id === review.userId._id
                                                 ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`)
                                                 : null
                                         }
                                         onDelete={
                                             currentUser &&
                                                 currentUser.userType === "churchgoer" &&
-                                                currentUser._id === review.userId
+                                                currentUser._id === review.userId._id
                                                 ? () => handleReviewDelete(review._id)
                                                 : null
                                         }

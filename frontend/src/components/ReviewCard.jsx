@@ -13,6 +13,7 @@ import { EditIcon, DeleteIcon } from '@chakra-ui/icons'
 const ReviewCard = ({ review, onEdit, onDelete }) => {
     const bgColor = useColorModeValue('white', 'gray.700')
     const borderColor = useColorModeValue('gray.200', 'gray.600')
+    const textColor = useColorModeValue('gray.700', 'gray.200')
 
     if (!review) return null
 
@@ -30,10 +31,10 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
             <VStack align="start" spacing={3}>
                 <HStack spacing={4} width="100%" justify="space-between">
                     <HStack spacing={4}>
-                        <Avatar size="sm" name={review.user?.firstName + ' ' + review.user?.lastName} />
+                        <Avatar size="sm" name={review.userId?.firstName + ' ' + review.userId?.lastName} />
                         <VStack align="start" spacing={0}>
                             <Text fontWeight="bold">
-                                {review.user?.firstName} {review.user?.lastName}
+                                {review.userId?.firstName} {review.userId?.lastName}
                             </Text>
                             <Text fontSize="sm" color="gray.500">
                                 {new Date(review.createdAt).toLocaleDateString()}
@@ -75,7 +76,7 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
                 </HStack>
 
                 {review.reviewText && (
-                    <Text fontSize="md" color="gray.700">
+                    <Text fontSize="md" color={textColor}>
                         {review.reviewText}
                     </Text>
                 )}
