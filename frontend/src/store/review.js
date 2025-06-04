@@ -22,6 +22,7 @@ export const useReviewStore = create((set) => ({
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(newReview),
       });
 
@@ -45,7 +46,9 @@ export const useReviewStore = create((set) => ({
   fetchReviews: async () => {
     try {
       set({ isLoading: true, error: null });
-      const res = await fetch("/api/reviews");
+      const res = await fetch("/api/reviews", {
+        credentials: "include",
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
       set({ reviews: data.data });
@@ -59,7 +62,9 @@ export const useReviewStore = create((set) => ({
   fetchReview: async (rid) => {
     try {
       set({ isLoading: true, error: null });
-      const res = await fetch(`/api/reviews/${rid}`);
+      const res = await fetch(`/api/reviews/${rid}`, {
+        credentials: "include",
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
       return { success: true, data: data.data };
@@ -74,7 +79,9 @@ export const useReviewStore = create((set) => ({
   fetchReviewByUser: async (ridu) => {
     try {
       set({ isLoading: true, error: null });
-      const res = await fetch(`/api/reviews/users/${ridu}`);
+      const res = await fetch(`/api/reviews/users/${ridu}`, {
+        credentials: "include",
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
       set({ reviews: data.data });
@@ -90,7 +97,9 @@ export const useReviewStore = create((set) => ({
   fetchReviewByChurch: async (ridc) => {
     try {
       set({ isLoading: true, error: null });
-      const res = await fetch(`/api/reviews/churches/${ridc}`);
+      const res = await fetch(`/api/reviews/churches/${ridc}`, {
+        credentials: "include",
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
       set({ reviews: data.data });
@@ -109,6 +118,7 @@ export const useReviewStore = create((set) => ({
       const res = await fetch(`/api/reviews/${rid}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(updatedReview),
       });
 
@@ -135,6 +145,7 @@ export const useReviewStore = create((set) => ({
       set({ isLoading: true, error: null });
       const res = await fetch(`/api/reviews/${rid}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       const data = await res.json();

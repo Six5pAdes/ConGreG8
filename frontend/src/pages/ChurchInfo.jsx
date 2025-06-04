@@ -322,7 +322,7 @@ const ChurchInfo = () => {
                             <Button
                                 leftIcon={<AddIcon />}
                                 colorScheme="teal"
-                                onClick={() => navigate(`/review-new?churchId=${churchId}`)}
+                                onClick={() => navigate(`/review-new?churchId=${churchId}`, { state: { from: 'church' } })}
                             >
                                 Write a Review
                             </Button>
@@ -339,7 +339,7 @@ const ChurchInfo = () => {
                                             currentUser &&
                                                 currentUser.userType === "churchgoer" &&
                                                 currentUser._id === review.userId._id
-                                                ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`)
+                                                ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`, { state: { from: 'church' } })
                                                 : null
                                         }
                                         onDelete={

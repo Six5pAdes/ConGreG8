@@ -5,7 +5,7 @@ export const useVolunteerOpStore = create((set) => ({
   isLoading: false,
   error: null,
 
-  setReviews: (volunteerOps) => set({ volunteerOps }),
+  setVolunteerOps: (volunteerOps) => set({ volunteerOps }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
 
@@ -53,7 +53,7 @@ export const useVolunteerOpStore = create((set) => ({
       const res = await fetch("/api/volunteering");
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
-      set({ reviews: data.data });
+      set({ volunteerOps: data.data });
     } catch (error) {
       set({ error: error.message });
     } finally {

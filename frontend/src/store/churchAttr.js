@@ -42,7 +42,7 @@ export const churchAttrStore = create((set) => ({
       const res = await fetch("/api/attributes");
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
-      set({ reviews: data.data });
+      set({ churchAttrs: data.data });
     } catch (error) {
       set({ error: error.message });
     } finally {

@@ -5,7 +5,7 @@ export const useSavedStore = create((set) => ({
   isLoading: false,
   error: null,
 
-  setReviews: (savedChurches) => set({ savedChurches }),
+  setSavedChurches: (savedChurches) => set({ savedChurches }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
 
@@ -44,7 +44,7 @@ export const useSavedStore = create((set) => ({
       const res = await fetch("/api/saved");
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
-      set({ reviews: data.data });
+      set({ savedChurches: data.data });
     } catch (error) {
       set({ error: error.message });
     } finally {
@@ -73,7 +73,7 @@ export const useSavedStore = create((set) => ({
       const res = await fetch(`/api/saved/user/${sidu}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
-      set({ reviews: data.data });
+      set({ savedChurches: data.data });
       return { success: true, data: data.data };
     } catch (error) {
       set({ error: error.message });

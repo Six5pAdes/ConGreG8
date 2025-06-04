@@ -82,9 +82,9 @@ const ReviewForm = () => {
         const reviewData = {
             rating,
             reviewText,
-            userId: currentUser._id,
-            churchId
+            ...(isEditing ? {} : { userId: currentUser._id, churchId })
         }
+
         const { success, message } = isEditing
             ? await updateReview(reviewId, reviewData)
             : await createReview(reviewData)
@@ -106,6 +106,15 @@ const ReviewForm = () => {
                 duration: 5000,
                 isClosable: true,
             })
+        }
+    }
+
+    const handleCancel = () => {
+        const fromPage = location.state?.from;
+        if (fromPage === 'userReview') {
+            navigate(`/profile/${currentUser._id}/reviews`);
+        } else {
+            navigate(`/churches/${churchId}`);
         }
     }
 
@@ -160,14 +169,7 @@ const ReviewForm = () => {
                             <HStack spacing={4} width="100%" justifyContent="flex-end">
                                 <Button
                                     variant="ghost"
-                                    onClick={() => {
-                                        const fromPage = location.state?.from;
-                                        if (fromPage === 'userReview') {
-                                            navigate(`/profile/${currentUser._id}/reviews`);
-                                        } else {
-                                            navigate(`/churches/${churchId}`);
-                                        }
-                                    }}
+                                    onClick={handleCancel}
                                 >
                                     Cancel
                                 </Button>

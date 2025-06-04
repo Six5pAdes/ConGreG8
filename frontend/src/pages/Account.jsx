@@ -220,14 +220,14 @@ const Account = () => {
                         <ModalHeader>Confirm Deletion</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>
-                            Are you sure you want to delete {currentUser.email}? This action cannot be undone.
+                            Are you sure you want to delete {currentUser?.email || user?.email}? This action cannot be undone.
                         </ModalBody>
 
                         <ModalFooter justifyContent={"space-evenly"}>
                             <Button
                                 colorScheme="red"
                                 onClick={() => {
-                                    handleDelete(currentUser._id);
+                                    handleDelete(currentUser?._id || user?._id);
                                     onDeleteClose();
                                 }}
                             >

@@ -101,7 +101,7 @@ const UserReviews = () => {
                                         review={review}
                                         onEdit={
                                             currentUser && currentUser._id === review.userId._id
-                                                ? () => navigate(`/review-edit/${review._id}?churchId=${review.churchId}`)
+                                                ? () => navigate(`/review-edit/${review._id}?churchId=${review.churchId}`, { state: { from: 'userReview' } })
                                                 : null
                                         }
                                         onDelete={

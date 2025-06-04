@@ -121,6 +121,7 @@ export const useUserStore = create(
             headers: {
               "Content-Type": "application/json",
             },
+            credentials: "include",
             body: JSON.stringify(credentials),
           });
 

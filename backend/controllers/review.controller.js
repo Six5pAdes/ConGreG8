@@ -146,7 +146,7 @@ export const updateReview = async (req, res) => {
 
   if (
     !existingReview.userId ||
-    existingReview.userId.toString() !== req.user._id.toString()
+    existingReview.userId._id.toString() !== req.user._id.toString()
   ) {
     return res.status(403).json({
       success: false,
@@ -167,6 +167,7 @@ export const updateReview = async (req, res) => {
     });
     res.status(200).json({ success: true, data: updatedReview });
   } catch (error) {
+    console.error("Error updating review:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };

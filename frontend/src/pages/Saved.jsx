@@ -1,14 +1,31 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Container, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { useSavedStore } from '../store/saved'
+import { useChurchStore } from '../store/church'
 import ChurchCard from '../components/ChurchCard'
 
 const Saved = () => {
     const { fetchSaved, savedChurches, isLoading, error } = useSavedStore()
+    const { fetchChurch } = useChurchStore()
+    const [churches, setChurches] = useState([])
 
     useEffect(() => {
         fetchSaved()
     }, [fetchSaved])
+
+    useEffect(() => {
+        const fetchChurches = async () => {
+            const churchPromises = savedChurches.map(saved => fetchChurch(saved.churchId))
+            const results = await Promise.all(churchPromises)
+            const validChurches = results
+                .filter(result => result.success)
+                .map(result => result.data)
+            setChurches(validChurches)
+        }
+        if (savedChurches.length > 0) {
+            fetchChurches()
+        }
+    }, [savedChurches, fetchChurch])
 
     if (isLoading) {
         return (
@@ -51,12 +68,12 @@ const Saved = () => {
                     w={"full"}
                     justifyItems={"center"}
                 >
-                    {savedChurches.map((saved) => (
-                        <ChurchCard key={saved._id} church={saved.churchId} />
+                    {churches.map((church) => (
+                        <ChurchCard key={church._id} church={church} />
                     ))}
                 </SimpleGrid>
 
-                {savedChurches.length === 0 && (
+                {churches.length === 0 && (
                     <Text fontSize={"xl"} textAlign={"center"} fontWeight={"medium"} color={"gray.600"}>
                         You haven't saved any churches yet. Start exploring churches and save the ones you're interested in visiting!
                     </Text>
