@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import CreateChurch from "./pages/CreateChurch";
 import ChurchInfo from "./pages/ChurchInfo";
 import ReviewForm from "./pages/ReviewForm";
+import VolunteerForm from "./components/VolunteerForm";
 
 import Account from "./pages/Account";
 import UserReviews from "./pages/UserReviews";
@@ -55,6 +56,7 @@ function App() {
         <Route path="/new" element={<CreateChurch />} />
         <Route path="/review-new" element={<ReviewForm />} />
         <Route path="/review-edit/:reviewId" element={<ReviewForm />} />
+        <Route path="/volunteering-new" element={<VolunteerForm />} />
         <Route path="/profile/:userId" element={<Account />} />
         <Route path="/profile/:userId/reviews" element={<UserReviews />} />
         <Route path="/profile/:userId/saved" element={<Saved />} />

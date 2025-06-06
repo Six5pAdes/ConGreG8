@@ -10,32 +10,49 @@ import {
     IconButton,
     useToast,
     Textarea,
+    Checkbox,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
 import { useUserStore } from "../store/user"
+import { useReviewStore } from '../store/review'
 import { useSavedStore } from '../store/saved'
+import { useVolunteerOpStore } from '../store/volunteer'
 import { DeleteIcon, EditIcon, AddIcon, StarIcon } from "@chakra-ui/icons"
 import ReviewCard from '../components/ReviewCard'
-import { useReviewStore } from '../store/review'
 
 const ChurchInfo = () => {
     const { churchId } = useParams()
     const { currentUser } = useUserStore()
+
     const { fetchChurch, deleteChurch, updateChurch } = useChurchStore()
-    const { fetchReviewByChurch, createReview, updateReview, deleteReview } = useReviewStore()
+    const { fetchReviewByChurch, deleteReview } = useReviewStore()
     const { createSaved, deleteSaved, fetchSavedByUser } = useSavedStore()
+    const { fetchVolunteerOpsByChurch, updateVolunteerOp, deleteVolunteerOp } = useVolunteerOpStore()
+
     const [church, setChurch] = useState(null)
     const [updatedChurch, setUpdatedChurch] = useState(null)
+    const [volunteerOps, setVolunteerOps] = useState([])
+    const [selectedVolunteerOp, setSelectedVolunteerOp] = useState(null)
+    const [updatedVolunteerOp, setUpdatedVolunteerOp] = useState(null)
+
     const [reviews, setReviews] = useState([])
     const [selectedReview, setSelectedReview] = useState(null)
+
     const [isSaved, setIsSaved] = useState(false)
     const [savedId, setSavedId] = useState(null)
+
     const bg = useColorModeValue("white", "gray.800")
     const textColor = useColorModeValue("gray.800", "whiteAlpha.900")
     const toast = useToast()
     const navigate = useNavigate()
+
+    const { isOpen: isChurchUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
+    const { isOpen: isChurchDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+    const { isOpen: isReviewDeleteOpen, onOpen: onReviewDeleteOpen, onClose: onReviewDeleteClose } = useDisclosure()
+    const { isOpen: isVolunteerOpEditOpen, onOpen: onVolunteerOpEditOpen, onClose: onVolunteerOpEditClose } = useDisclosure()
+    const { isOpen: isVolunteerOpDeleteOpen, onOpen: onVolunteerOpDeleteOpen, onClose: onVolunteerOpDeleteClose } = useDisclosure()
 
     useEffect(() => {
         if (!churchId) {
@@ -50,10 +67,6 @@ const ChurchInfo = () => {
             return
         }
     }, [churchId, navigate, toast])
-
-    const { isOpen: isChurchUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
-    const { isOpen: isChurchDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
-    const { isOpen: isReviewDeleteOpen, onOpen: onReviewDeleteOpen, onClose: onReviewDeleteClose } = useDisclosure()
 
     useEffect(() => {
         const loadChurch = async () => {
@@ -91,6 +104,16 @@ const ChurchInfo = () => {
         }
         checkSavedStatus()
     }, [currentUser, churchId, fetchSavedByUser])
+
+    useEffect(() => {
+        const loadVolunteerOps = async () => {
+            const { success, data } = await fetchVolunteerOpsByChurch(churchId)
+            if (success) {
+                setVolunteerOps(data)
+            }
+        }
+        loadVolunteerOps()
+    }, [churchId, fetchVolunteerOpsByChurch])
 
     if (!church) {
         return (
@@ -229,6 +252,70 @@ const ChurchInfo = () => {
         }
     }
 
+    const handleVolunteerOpEdit = (op) => {
+        setSelectedVolunteerOp(op)
+        setUpdatedVolunteerOp(op)
+        onVolunteerOpEditOpen()
+    }
+
+    const handleVolunteerOpDelete = (op) => {
+        setSelectedVolunteerOp(op)
+        onVolunteerOpDeleteOpen()
+    }
+
+    const confirmVolunteerOpDelete = async () => {
+        const { success, message } = await deleteVolunteerOp(selectedVolunteerOp._id)
+        if (success) {
+            toast({
+                title: "Success",
+                description: "Volunteer opportunity deleted successfully",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            })
+            const { success: fetchSuccess, data } = await fetchVolunteerOpsByChurch(churchId)
+            if (fetchSuccess) {
+                setVolunteerOps(data)
+            }
+        } else {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            })
+        }
+        onVolunteerOpDeleteClose()
+    }
+
+    const handleVolunteerOpUpdate = async () => {
+        const { success, message } = await updateVolunteerOp(selectedVolunteerOp._id, updatedVolunteerOp)
+        onVolunteerOpEditClose()
+
+        if (!success) {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: "Success",
+                description: "Volunteer opportunity updated successfully",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            })
+            const { success: fetchSuccess, data } = await fetchVolunteerOpsByChurch(churchId)
+            if (fetchSuccess) {
+                setVolunteerOps(data)
+            }
+        }
+    }
+
     return (
         <Container maxW="container.xl" py={14}>
             <VStack spacing={8} align="stretch">
@@ -310,50 +397,6 @@ const ChurchInfo = () => {
                             </HStack>
                         </Box>
                     )}
-                </Box>
-
-                {/* Reviews Section */}
-                <Box shadow="lg" rounded="lg" overflow="hidden" bg={bg} p={8}>
-                    <HStack justify="space-between" mb={6}>
-                        <Heading as="h2" size="xl" color="teal.500">
-                            Reviews
-                        </Heading>
-                        {currentUser && currentUser.userType === "churchgoer" && (
-                            <Button
-                                leftIcon={<AddIcon />}
-                                colorScheme="teal"
-                                onClick={() => navigate(`/review-new?churchId=${churchId}`, { state: { from: 'church' } })}
-                            >
-                                Write a Review
-                            </Button>
-                        )}
-                    </HStack>
-
-                    <VStack spacing={4} align="stretch">
-                        {reviews.map((review) => {
-                            return (
-                                <Box key={review._id}>
-                                    <ReviewCard
-                                        review={review}
-                                        onEdit={
-                                            currentUser &&
-                                                currentUser.userType === "churchgoer" &&
-                                                currentUser._id === review.userId._id
-                                                ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`, { state: { from: 'church' } })
-                                                : null
-                                        }
-                                        onDelete={
-                                            currentUser &&
-                                                currentUser.userType === "churchgoer" &&
-                                                currentUser._id === review.userId._id
-                                                ? () => handleReviewDelete(review._id)
-                                                : null
-                                        }
-                                    />
-                                </Box>
-                            )
-                        })}
-                    </VStack>
                 </Box>
 
                 {/* Church Update Modal */}
@@ -456,6 +499,187 @@ const ChurchInfo = () => {
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
+
+                {/* Volunteer Opportunity Section */}
+                <Box shadow='lg' rounded='lg' overflow='hidden' bg={bg} p={8}>
+                    <HStack justify="space-between" mb={6}>
+                        <Heading as="h2" size="xl" color="teal.500">
+                            {church.name}'s Volunteer Opportunities
+                        </Heading>
+                        {currentUser && currentUser.userType === "churchRep" && (
+                            <Button
+                                leftIcon={<AddIcon />}
+                                colorScheme="teal"
+                                onClick={() => navigate(`/volunteering-new?churchId=${churchId}`)}
+                            >
+                                Create a New Volunteer Opportunity
+                            </Button>
+                        )}
+                    </HStack>
+
+                    <VStack spacing={4} align="stretch">
+                        {volunteerOps.length === 0 ? (
+                            <Text>No volunteer opportunities available at this time.</Text>
+                        ) : (
+                            volunteerOps.map((op) => (
+                                <Box
+                                    key={op._id}
+                                    p={4}
+                                    borderWidth="1px"
+                                    borderRadius="lg"
+                                    bg={useColorModeValue("white", "gray.700")}
+                                >
+                                    <VStack align="stretch" spacing={2}>
+                                        <HStack justify="space-between">
+                                            <Heading size="md">{op.title}</Heading>
+                                            <HStack>
+                                                {op.isActive ? (
+                                                    <Text color="green.500" fontWeight="bold">Active</Text>
+                                                ) : (
+                                                    <Text color="red.500" fontWeight="bold">Inactive</Text>
+                                                )}
+                                                {currentUser && currentUser.userType === "churchRep" && (
+                                                    <HStack spacing={2}>
+                                                        <IconButton
+                                                            icon={<EditIcon />}
+                                                            colorScheme="teal"
+                                                            size="sm"
+                                                            onClick={() => handleVolunteerOpEdit(op)}
+                                                        />
+                                                        <IconButton
+                                                            icon={<DeleteIcon />}
+                                                            colorScheme="red"
+                                                            size="sm"
+                                                            onClick={() => handleVolunteerOpDelete(op)}
+                                                        />
+                                                    </HStack>
+                                                )}
+                                            </HStack>
+                                        </HStack>
+                                        <Text>{op.description}</Text>
+                                        {op.isMember && (
+                                            <Text color="blue.500" fontWeight="bold">
+                                                Church Membership Required
+                                            </Text>
+                                        )}
+                                    </VStack>
+                                </Box>
+                            ))
+                        )}
+                    </VStack>
+                </Box>
+
+                {/* Volunteer Opportunity Edit Modal */}
+                <Modal isOpen={isVolunteerOpEditOpen} onClose={onVolunteerOpEditClose}>
+                    <ModalOverlay />
+                    <ModalContent>
+                        <ModalHeader>Edit Volunteer Opportunity</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                            <VStack spacing={4} p={4} bg={bg} rounded={"lg"} shadow={"md"}>
+                                <Input
+                                    placeholder='Title'
+                                    name='title'
+                                    value={updatedVolunteerOp?.title || ''}
+                                    onChange={(e) => setUpdatedVolunteerOp({ ...updatedVolunteerOp, title: e.target.value })}
+                                />
+                                <Textarea
+                                    placeholder='Description'
+                                    name='description'
+                                    value={updatedVolunteerOp?.description || ''}
+                                    onChange={(e) => setUpdatedVolunteerOp({ ...updatedVolunteerOp, description: e.target.value })}
+                                />
+                                <Checkbox
+                                    isChecked={updatedVolunteerOp?.isActive}
+                                    onChange={(e) => setUpdatedVolunteerOp({ ...updatedVolunteerOp, isActive: e.target.checked })}
+                                >
+                                    Is Active
+                                </Checkbox>
+                                <Checkbox
+                                    isChecked={updatedVolunteerOp?.isMember}
+                                    onChange={(e) => setUpdatedVolunteerOp({ ...updatedVolunteerOp, isMember: e.target.checked })}
+                                >
+                                    Requires Church Membership
+                                </Checkbox>
+                            </VStack>
+                        </ModalBody>
+
+                        <ModalFooter justifyContent={"space-evenly"}>
+                            <Button colorScheme="teal" mr={3} onClick={handleVolunteerOpUpdate}>
+                                Update
+                            </Button>
+                            <Button variant="ghost" onClick={onVolunteerOpEditClose}>Cancel</Button>
+                        </ModalFooter>
+                    </ModalContent>
+                </Modal>
+
+                {/* Volunteer Opportunity Delete Modal */}
+                <Modal isOpen={isVolunteerOpDeleteOpen} onClose={onVolunteerOpDeleteClose}>
+                    <ModalOverlay />
+                    <ModalContent>
+                        <ModalHeader>Confirm Deletion</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                            Are you sure you want to delete this volunteer opportunity? This action cannot be undone.
+                        </ModalBody>
+
+                        <ModalFooter justifyContent={"space-evenly"}>
+                            <Button
+                                colorScheme="red"
+                                onClick={confirmVolunteerOpDelete}
+                            >
+                                Delete
+                            </Button>
+                            <Button variant="ghost" onClick={onVolunteerOpDeleteClose}>
+                                Cancel
+                            </Button>
+                        </ModalFooter>
+                    </ModalContent>
+                </Modal>
+
+                {/* Reviews Section */}
+                <Box shadow="lg" rounded="lg" overflow="hidden" bg={bg} p={8}>
+                    <HStack justify="space-between" mb={6}>
+                        <Heading as="h2" size="xl" color="teal.500">
+                            Reviews
+                        </Heading>
+                        {currentUser && currentUser.userType === "churchgoer" && (
+                            <Button
+                                leftIcon={<AddIcon />}
+                                colorScheme="teal"
+                                onClick={() => navigate(`/review-new?churchId=${churchId}`, { state: { from: 'church' } })}
+                            >
+                                Write a Review
+                            </Button>
+                        )}
+                    </HStack>
+
+                    <VStack spacing={4} align="stretch">
+                        {reviews.map((review) => {
+                            return (
+                                <Box key={review._id}>
+                                    <ReviewCard
+                                        review={review}
+                                        onEdit={
+                                            currentUser &&
+                                                currentUser.userType === "churchgoer" &&
+                                                currentUser._id === review.userId._id
+                                                ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`, { state: { from: 'church' } })
+                                                : null
+                                        }
+                                        onDelete={
+                                            currentUser &&
+                                                currentUser.userType === "churchgoer" &&
+                                                currentUser._id === review.userId._id
+                                                ? () => handleReviewDelete(review._id)
+                                                : null
+                                        }
+                                    />
+                                </Box>
+                            )
+                        })}
+                    </VStack>
+                </Box>
 
                 {/* Review Delete Modal */}
                 <Modal isOpen={isReviewDeleteOpen} onClose={onReviewDeleteClose}>

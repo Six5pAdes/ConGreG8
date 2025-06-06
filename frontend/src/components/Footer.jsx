@@ -82,13 +82,13 @@ const Footer = () => {
                         Connect With Us
                     </Heading>
                     <Flex gap={4}>
-                        <Link href="https://github.com/Six5pAdes" color="gray.300" _hover={{ color: "white" }}>
+                        <Link href="https://github.com/Six5pAdes" color="gray.300" _hover={{ color: "white" }} target="_blank" rel="noopener noreferrer">
                             <Icon as={FaGithub} boxSize={6} />
                         </Link>
-                        <Link href="https://www.linkedin.com/in/austinhall-6spades/" color="gray.300" _hover={{ color: "white" }}>
+                        <Link href="https://www.linkedin.com/in/austinhall-6spades/" color="gray.300" _hover={{ color: "white" }} target="_blank" rel="noopener noreferrer">
                             <Icon as={FaLinkedin} boxSize={6} />
                         </Link>
-                        <Link href="https://six5pades.github.io/" color="gray.300" _hover={{ color: "white" }}>
+                        <Link href="https://six5pades.github.io/" color="gray.300" _hover={{ color: "white" }} target="_blank" rel="noopener noreferrer">
                             <Icon as={FaLink} boxSize={6} />
                         </Link>
                     </Flex>
