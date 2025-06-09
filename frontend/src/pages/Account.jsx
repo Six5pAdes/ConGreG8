@@ -1,15 +1,22 @@
 import { useUserStore } from '../store/user'
-import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, Text, Heading, Input } from '@chakra-ui/react'
+import { useUserPrefStore } from '../store/userPref'
+import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HStack, Text, Heading, Input, Button, IconButton, Select } from '@chakra-ui/react'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
+import { EditIcon, DeleteIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 
 const Account = () => {
     const { userId } = useParams()
     const { currentUser, fetchUser, logout, updateUser, deleteUser } = useUserStore()
+    const { fetchSingleUserPref, updateUserPref, deleteUserPref } = useUserPrefStore()
+
     const [user, setUser] = useState(null)
     const [updatedUser, setUpdatedUser] = useState(null)
+    const [userPrefs, setUserPrefs] = useState(null)
+    const [editingPrefs, setEditingPrefs] = useState(null)
+    const [isEditing, setIsEditing] = useState(false)
+
     const bg = useColorModeValue("white", "gray.800")
     const textColor = useColorModeValue("light" ? "gray.800" : "whiteAlpha.900")
     const toast = useToast()
@@ -24,10 +31,17 @@ const Account = () => {
             if (success) {
                 setUser(data)
                 setUpdatedUser(data)
+                // Fetch user preferences if user is a churchgoer
+                if (data.userType === "churchgoer") {
+                    const { success: prefSuccess, data: prefData } = await fetchSingleUserPref(data._id)
+                    if (prefSuccess) {
+                        setUserPrefs(prefData)
+                    }
+                }
             }
         }
         loadUser()
-    }, [userId, fetchUser])
+    }, [userId, fetchUser, fetchSingleUserPref])
 
     const handleDelete = async (uid) => {
         const { success, message } = await deleteUser(uid)
@@ -102,6 +116,120 @@ const Account = () => {
         }
     }
 
+    const handleEditPrefs = () => {
+        setEditingPrefs({ ...userPrefs })
+        setIsEditing(true)
+    }
+
+    const handleCancelEdit = () => {
+        setEditingPrefs(null)
+        setIsEditing(false)
+    }
+
+    const handleSavePrefs = async () => {
+        const { success, message } = await updateUserPref(userPrefs._id, editingPrefs)
+        if (success) {
+            setUserPrefs(editingPrefs)
+            setIsEditing(false)
+            setEditingPrefs(null)
+            toast({
+                title: "Success",
+                description: "Preferences updated successfully",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
+        }
+    }
+
+    const handleDeletePref = async (prefId) => {
+        const { success, message } = await deleteUserPref(prefId)
+        if (success) {
+            setUserPrefs(null)
+            toast({
+                title: "Success",
+                description: "Preferences deleted successfully",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
+        }
+    }
+
+    const handleClearAllPrefs = () => {
+        setEditingPrefs({
+            size: null,
+            ageGroup: null,
+            ethnicity: null,
+            language: null,
+            denomination: null,
+            volunteering: false,
+            serviceTime: null,
+            serviceNumber: null
+        });
+    }
+
+    const PreferenceRow = ({ label, field, value, options }) => {
+        const isEditingField = isEditing && editingPrefs !== null
+
+        return (
+            <HStack spacing={8} justify="space-between" align="center">
+                <Text>{label}:</Text>
+                <HStack spacing={2}>
+                    {isEditingField ? (
+                        options ? (
+                            <Select
+                                value={editingPrefs[field]}
+                                onChange={(e) => setEditingPrefs({ ...editingPrefs, [field]: e.target.value })}
+                                size="sm"
+                                width="200px"
+                            >
+                                {options.map(option => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </Select>
+                        ) : (
+                            <Input
+                                value={editingPrefs[field]}
+                                onChange={(e) => setEditingPrefs({ ...editingPrefs, [field]: e.target.value })}
+                                size="sm"
+                                width="200px"
+                            />
+                        )
+                    ) : (
+                        <Text fontWeight="bold">{value}</Text>
+                    )}
+                    {isEditingField && (
+                        <IconButton
+                            icon={<DeleteIcon />}
+                            size="sm"
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() => setEditingPrefs({ ...editingPrefs, [field]: null })}
+                            aria-label="Clear preference"
+                        />
+                    )}
+                </HStack>
+            </HStack>
+        )
+    }
+
     return (
         <Container maxW="container.xl" py={14}>
             <VStack spacing={8} align="stretch">
@@ -127,25 +255,158 @@ const Account = () => {
 
                     <VStack align="stretch" spacing={4}>
                         {currentUser?.userType === "churchgoer" && (
-                            <Box>
+                            <HStack spacing={8} justify="space-between">
                                 <Text>Full Name: {currentUser?.firstName} {currentUser?.lastName}</Text>
                                 <Text>Username: {currentUser?.username}</Text>
                                 <Text>Email: {currentUser?.email}</Text>
-                            </Box>
+                            </HStack>
                         )}
                         {currentUser?.userType === "churchRep" && (
-                            <Box>
+                            <HStack spacing={8} justify="space-between">
                                 <Text>Church Name: {currentUser?.churchName}</Text>
                                 <Text>Email: {currentUser?.email}</Text>
-                            </Box>
+                            </HStack>
                         )}
                     </VStack>
 
-                    <Box mt={8} display="flex" justifyContent="space-between">
-                        <Button onClick={onUpdateOpen} colorScheme="blue" mr={4}>Update Account</Button>
-                        <Button onClick={handleLogout} colorScheme="teal" mr={4}>Logout</Button>
-                        <Button onClick={onDeleteOpen} colorScheme="red">Delete Account</Button>
+                    <Button onClick={onUpdateOpen} colorScheme="blue" mr={4} marginTop={10}>Update Account</Button>
+                </Box>
+
+                {/* box for user's prefs */}
+                {currentUser?.userType === "churchgoer" && (
+                    <Box
+                        shadow="lg"
+                        rounded="lg"
+                        overflow="hidden"
+                        bg={bg}
+                        p={8}
+                    >
+                        <HStack justify="space-between" mb={8}>
+                            <Heading as="h1" size="2xl" color={textColor}>
+                                {currentUser?.username}'s Church Preferences
+                            </Heading>
+                            {userPrefs && !isEditing && (
+                                <Button
+                                    leftIcon={<EditIcon />}
+                                    colorScheme="blue"
+                                    size="sm"
+                                    onClick={handleEditPrefs}
+                                >
+                                    Edit Preferences
+                                </Button>
+                            )}
+                            {isEditing && (
+                                <HStack spacing={2}>
+                                    <Button
+                                        leftIcon={<DeleteIcon />}
+                                        colorScheme="red"
+                                        size="sm"
+                                        onClick={handleClearAllPrefs}
+                                    >
+                                        Clear All
+                                    </Button>
+                                    <Button
+                                        leftIcon={<EditIcon />}
+                                        colorScheme="blue"
+                                        size="sm"
+                                        onClick={handleEditPrefs}
+                                    >
+                                        Edit Preferences
+                                    </Button>
+                                </HStack>
+                            )}
+                        </HStack>
+
+                        <VStack align="stretch" spacing={4}>
+                            {userPrefs ? (
+                                <>
+                                    <PreferenceRow
+                                        label="Preferred Church Size"
+                                        field="size"
+                                        value={userPrefs.size}
+                                        options={["--", "Small", "Midsize", "Big", "Megachurch"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Preferred Age Group"
+                                        field="ageGroup"
+                                        value={userPrefs.ageGroup}
+                                        options={["--", "Family", "Young Adult", "Adult", "Senior"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Preferred Ethnicity"
+                                        field="ethnicity"
+                                        value={userPrefs.ethnicity}
+                                        options={["--", "African American", "Asian", "Caucasian", "Hispanic", "Pacific Islander", "Other"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Preferred Language"
+                                        field="language"
+                                        value={userPrefs.language}
+                                        options={["--", "English", "Spanish", "French", "German", "Mandarin", "Korean", "Other"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Preferred Denomination"
+                                        field="denomination"
+                                        value={userPrefs.denomination}
+                                        options={["--", "Baptist", "Catholic", "Evangelical", "Lutheran", "Methodist", "Orthodox", "Pentecostal", "Presbyterian", "non-denominational"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Preferred Service Time"
+                                        field="serviceTime"
+                                        value={userPrefs.serviceTime}
+                                        options={["--", "Morning", "Afternoon", "Evening"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Number of Services"
+                                        field="serviceNumber"
+                                        value={userPrefs.serviceNumber}
+                                    />
+                                    <PreferenceRow
+                                        label="Interested in Volunteering"
+                                        field="volunteering"
+                                        value={userPrefs.volunteering ? "Yes" : "No"}
+                                        options={["True", "False"]}
+                                    />
+                                    <PreferenceRow
+                                        label="Looking for Participatory"
+                                        field="participatory"
+                                        value={userPrefs.participatory ? "Yes" : "No"}
+                                        options={["True", "False"]}
+                                    />
+                                    {isEditing && (
+                                        <HStack justify="flex-end" spacing={4} mt={4}>
+                                            <Button
+                                                leftIcon={<CheckIcon />}
+                                                colorScheme="green"
+                                                size="sm"
+                                                onClick={handleSavePrefs}
+                                            >
+                                                Save Changes
+                                            </Button>
+                                            <Button
+                                                leftIcon={<CloseIcon />}
+                                                colorScheme="gray"
+                                                size="sm"
+                                                onClick={handleCancelEdit}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </HStack>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <Text textAlign="center">No preferences set yet</Text>
+                                    <Button onClick={() => navigate("/add-user-preferences")} textAlign={"center"}>Set User Preferences</Button>
+                                </>
+                            )}
+                        </VStack>
                     </Box>
+                )}
+
+                <Box mt={8} display="flex" justifyContent="space-between">
+                    <Button onClick={handleLogout} colorScheme="teal" mr={4}>Logout</Button>
+                    <Button onClick={onDeleteOpen} colorScheme="red">Delete Account</Button>
                 </Box>
 
                 <Modal isOpen={isUpdateOpen} onClose={onUpdateClose}>

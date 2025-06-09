@@ -94,33 +94,50 @@ const ChurchCard = ({ church }) => {
 
     return (
         <Box
-            shadow={"lg"}
-            rounded={"lg"}
-            overflow={"hidden"}
-            transition={"all 0.3s ease"}
-            _hover={{
-                transform: "scale(1.05)",
-                boxShadow: "xl",
-            }}
+            borderWidth="1px"
+            borderRadius="lg"
+            overflow="hidden"
             bg={bg}
-            onClick={handleCardClick}
+            shadow="md"
+            _hover={{ shadow: "lg" }}
+            transition="all 0.2s"
             cursor="pointer"
+            onClick={handleCardClick}
         >
-            <Image src={church.image} alt={church.name} h={48} w='full' objectFit="cover" />
-
+            <Image
+                src={church.image}
+                alt={church.name}
+                h={48}
+                w="full"
+                objectFit="cover"
+            />
             <Box p={4}>
-                <Heading as="h3" size="md" mb={2} color={"teal.500"}>
+                <Heading size="md" mb={2} color={textColor}>
                     {church.name}
                 </Heading>
-
-                <Text fontWeight='bold' fontSize={"lg"} color={textColor} mb={2}>
+                <Text mb={2}>
                     {church.address}, {church.city}, {church.state}
                 </Text>
-
-                {currentUser && currentUser.userType === "churchRep" && (
-                    <HStack spacing={2}>
-                        <IconButton icon={<EditIcon />} colorScheme="teal" size="sm" onClick={onUpdateOpen} />
-                        <IconButton icon={<DeleteIcon />} colorScheme="red" size="sm" onClick={onDeleteOpen} />
+                {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                    <HStack spacing={2} mt={2}>
+                        <IconButton
+                            icon={<EditIcon />}
+                            colorScheme="teal"
+                            size="sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onUpdateOpen();
+                            }}
+                        />
+                        <IconButton
+                            icon={<DeleteIcon />}
+                            colorScheme="red"
+                            size="sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteOpen();
+                            }}
+                        />
                     </HStack>
                 )}
             </Box>

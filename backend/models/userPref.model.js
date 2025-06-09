@@ -14,10 +14,12 @@ const userPreferenceSchema = new mongoose.Schema(
         "big", // 400-2000
         "megachurch", // 2000+
       ],
+      null: true,
     },
     ageGroup: {
       type: String,
       enum: ["family", "youngAdult", "adult", "senior"],
+      null: true,
     },
     ethnicity: {
       type: String,
@@ -29,6 +31,7 @@ const userPreferenceSchema = new mongoose.Schema(
         "pacificIslander",
         "other",
       ],
+      null: true,
     },
     language: {
       type: String,
@@ -41,6 +44,7 @@ const userPreferenceSchema = new mongoose.Schema(
         "korean",
         "other",
       ],
+      null: true,
     },
     denomination: {
       type: String,
@@ -55,13 +59,15 @@ const userPreferenceSchema = new mongoose.Schema(
         "presbyterian",
         "non-denominational",
       ],
+      null: true,
     },
-    volunteering: { type: Boolean, default: false },
-    serviceNumber: { type: Number },
+    serviceNumber: { type: Number, null: true },
     serviceTime: {
       type: String,
       enum: ["morning", "afternoon", "evening"],
+      null: true,
     },
+    volunteering: { type: Boolean, default: false },
     participatory: {
       type: Boolean,
       default: false,

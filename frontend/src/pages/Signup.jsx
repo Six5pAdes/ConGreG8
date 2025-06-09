@@ -53,7 +53,12 @@ const Signup = () => {
                 status: "success",
                 isClosable: true,
             })
-            navigate('/')
+            // Redirect based on user type
+            if (newUser.userType === "churchRep") {
+                navigate('/add-church-attributes')
+            } else {
+                navigate('/add-user-preferences')
+            }
         }
 
         setNewUser({

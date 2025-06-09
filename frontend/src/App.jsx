@@ -18,6 +18,8 @@ import Saved from './pages/Saved'
 
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import AddUserPrefs from "./pages/AddUserPrefs";
+import AddChurchAttrs from "./pages/AddChurchAttrs";
 
 function App() {
   const { currentUser } = useUserStore();
@@ -52,11 +54,16 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/add-user-preferences" element={<AddUserPrefs />} />
+        <Route path="/add-church-attributes" element={<AddChurchAttrs />} />
+
         <Route path="/churches/:churchId" element={<ChurchInfo />} />
+
         <Route path="/new" element={<CreateChurch />} />
         <Route path="/review-new" element={<ReviewForm />} />
         <Route path="/review-edit/:reviewId" element={<ReviewForm />} />
         <Route path="/volunteering-new" element={<VolunteerForm />} />
+
         <Route path="/profile/:userId" element={<Account />} />
         <Route path="/profile/:userId/reviews" element={<UserReviews />} />
         <Route path="/profile/:userId/saved" element={<Saved />} />

@@ -21,7 +21,7 @@ export const getSingleUserPref = async (req, res) => {
   }
 
   try {
-    const userPref = await UserPreference.find({ userId: id });
+    const userPref = await UserPreference.findOne({ userId: id });
     if (!userPref) {
       return res
         .status(404)

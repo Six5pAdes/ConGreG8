@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export const churchAttrStore = create((set) => ({
+export const useChurchAttrStore = create((set) => ({
   churchAttrs: [],
   isLoading: false,
   error: null,

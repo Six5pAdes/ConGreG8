@@ -357,14 +357,14 @@ const ChurchInfo = () => {
                                 </Text>
                             </Box>
 
-                            {church.description && (
-                                <Box>
-                                    <Text fontWeight="bold" fontSize="lg" color={textColor}>
-                                        About
-                                    </Text>
+                            <Box>
+                                <Text fontWeight="bold" fontSize="lg" color={textColor}>
+                                    About
+                                </Text>
+                                {church.description && (
                                     <Text>{church.description}</Text>
-                                </Box>
-                            )}
+                                )}
+                            </Box>
 
                             <Box>
                                 <Text fontWeight="bold" fontSize="lg" color={textColor}>
@@ -389,7 +389,7 @@ const ChurchInfo = () => {
                         </VStack>
                     </Box>
 
-                    {currentUser && currentUser.userType === "churchRep" && (
+                    {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
                         <Box p={4}>
                             <HStack spacing={2}>
                                 <IconButton icon={<EditIcon />} colorScheme="teal" size="sm" onClick={onUpdateOpen} />
@@ -506,7 +506,7 @@ const ChurchInfo = () => {
                         <Heading as="h2" size="xl" color="teal.500">
                             {church.name}'s Volunteer Opportunities
                         </Heading>
-                        {currentUser && currentUser.userType === "churchRep" && (
+                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
                             <Button
                                 leftIcon={<AddIcon />}
                                 colorScheme="teal"
