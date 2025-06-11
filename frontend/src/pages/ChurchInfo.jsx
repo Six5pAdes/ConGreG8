@@ -8,46 +8,56 @@ import {
     ModalOverlay,
     Button,
     IconButton,
+    Select,
     useToast,
     Textarea,
     Checkbox,
+    Badge,
 } from '@chakra-ui/react'
+
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+
 import { useChurchStore } from '../store/church'
 import { useUserStore } from "../store/user"
 import { useReviewStore } from '../store/review'
 import { useSavedStore } from '../store/saved'
 import { useVolunteerOpStore } from '../store/volunteer'
+import { useChurchAttrStore } from '../store/churchAttr'
+
 import { DeleteIcon, EditIcon, AddIcon, StarIcon } from "@chakra-ui/icons"
 import ReviewCard from '../components/ReviewCard'
+import { US_STATES } from '../../../backend/models/church.model.js'
 
 const ChurchInfo = () => {
+    // All hooks must be declared at the top level
     const { churchId } = useParams()
     const { currentUser } = useUserStore()
+    const navigate = useNavigate()
+    const toast = useToast()
+    const bg = useColorModeValue("white", "gray.800")
+    const textColor = useColorModeValue("gray.800", "whiteAlpha.900")
 
+    // Store hooks
     const { fetchChurch, deleteChurch, updateChurch } = useChurchStore()
     const { fetchReviewByChurch, deleteReview } = useReviewStore()
     const { createSaved, deleteSaved, fetchSavedByUser } = useSavedStore()
     const { fetchVolunteerOpsByChurch, updateVolunteerOp, deleteVolunteerOp } = useVolunteerOpStore()
+    const { fetchSingleChurchAttr } = useChurchAttrStore()
 
+    // State hooks
     const [church, setChurch] = useState(null)
     const [updatedChurch, setUpdatedChurch] = useState(null)
     const [volunteerOps, setVolunteerOps] = useState([])
     const [selectedVolunteerOp, setSelectedVolunteerOp] = useState(null)
     const [updatedVolunteerOp, setUpdatedVolunteerOp] = useState(null)
-
     const [reviews, setReviews] = useState([])
     const [selectedReview, setSelectedReview] = useState(null)
-
     const [isSaved, setIsSaved] = useState(false)
     const [savedId, setSavedId] = useState(null)
+    const [churchAttrs, setChurchAttrs] = useState(null)
 
-    const bg = useColorModeValue("white", "gray.800")
-    const textColor = useColorModeValue("gray.800", "whiteAlpha.900")
-    const toast = useToast()
-    const navigate = useNavigate()
-
+    // Disclosure hooks
     const { isOpen: isChurchUpdateOpen, onOpen: onUpdateOpen, onClose: onUpdateClose } = useDisclosure()
     const { isOpen: isChurchDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
     const { isOpen: isReviewDeleteOpen, onOpen: onReviewDeleteOpen, onClose: onReviewDeleteClose } = useDisclosure()
@@ -114,6 +124,32 @@ const ChurchInfo = () => {
         }
         loadVolunteerOps()
     }, [churchId, fetchVolunteerOpsByChurch])
+
+    useEffect(() => {
+        const loadChurchAttrs = async () => {
+            const { success, data } = await fetchSingleChurchAttr(churchId)
+            if (success) {
+                setChurchAttrs(data[0]) // Get the first (and should be only) attribute set
+            }
+        }
+        if (churchId) {
+            loadChurchAttrs()
+        }
+    }, [churchId, fetchSingleChurchAttr])
+
+    const formatPhoneNumber = (phoneNumber) => {
+        // Remove all non-digit characters
+        const cleaned = phoneNumber.replace(/\D/g, '');
+
+        // Check if we have a valid 10-digit number
+        if (cleaned.length === 10) {
+            // Format as (NPA) NXX-XXXX
+            return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+        }
+
+        // Return original if not a valid 10-digit number
+        return phoneNumber;
+    };
 
     if (!church) {
         return (
@@ -370,7 +406,7 @@ const ChurchInfo = () => {
                                 <Text fontWeight="bold" fontSize="lg" color={textColor}>
                                     Contact Information
                                 </Text>
-                                {church.phone && <Text>Phone: {church.phone}</Text>}
+                                {church.phone && <Text>Phone: {formatPhoneNumber(church.phone)}</Text>}
                                 {church.email && <Text>Email: {church.email}</Text>}
                                 {church.website && (
                                     <Text>
@@ -425,12 +461,18 @@ const ChurchInfo = () => {
                                     value={updatedChurch?.city || ''}
                                     onChange={(e) => setUpdatedChurch({ ...updatedChurch, city: e.target.value })}
                                 />
-                                <Input
-                                    placeholder='Church State'
+                                <Select
+                                    placeholder='Select state'
                                     name='state'
-                                    value={updatedChurch?.state || ''}
+                                    value={updatedChurch.state}
                                     onChange={(e) => setUpdatedChurch({ ...updatedChurch, state: e.target.value })}
-                                />
+                                >
+                                    {Object.entries(US_STATES).map(([abbr, name]) => (
+                                        <option key={abbr} value={abbr}>
+                                            {abbr} - {name}
+                                        </option>
+                                    ))}
+                                </Select>
                                 <Textarea
                                     placeholder='Church Description'
                                     name='description'
@@ -500,6 +542,80 @@ const ChurchInfo = () => {
                     </ModalContent>
                 </Modal>
 
+                {/* Church Attribute Section */}
+                <Box shadow='lg' rounded='lg' overflow='hidden' bg={bg} p={8}>
+                    <HStack justify="space-between" mb={6}>
+                        <Heading as="h2" size="xl" color="teal.500">
+                            Church Attributes
+                        </Heading>
+                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                            <Button
+                                leftIcon={<AddIcon />}
+                                colorScheme="teal"
+                                onClick={() => navigate(`/add-church-attributes/${churchId}`)}
+                            >
+                                Edit Attributes
+                            </Button>
+                        )}
+                    </HStack>
+
+                    {churchAttrs ? (
+                        <VStack spacing={4} align="stretch">
+                            <HStack wrap="wrap" spacing={4}>
+                                {churchAttrs.size && (
+                                    <Badge colorScheme="blue" p={2} borderRadius="md">
+                                        Size: {churchAttrs.size.charAt(0).toUpperCase() + churchAttrs.size.slice(1)}
+                                    </Badge>
+                                )}
+                                {churchAttrs.ageGroup && (
+                                    <Badge colorScheme="green" p={2} borderRadius="md">
+                                        Age Group: {churchAttrs.ageGroup.split(/(?=[A-Z])/).join(' ')}
+                                    </Badge>
+                                )}
+                                {churchAttrs.ethnicity && (
+                                    <Badge colorScheme="purple" p={2} borderRadius="md">
+                                        Ethnicity: {churchAttrs.ethnicity.split(/(?=[A-Z])/).join(' ')}
+                                    </Badge>
+                                )}
+                                {churchAttrs.language && (
+                                    <Badge colorScheme="orange" p={2} borderRadius="md">
+                                        Language: {churchAttrs.language.charAt(0).toUpperCase() + churchAttrs.language.slice(1)}
+                                    </Badge>
+                                )}
+                                {churchAttrs.denomination && (
+                                    <Badge colorScheme="teal" p={2} borderRadius="md">
+                                        Denomination: {churchAttrs.denomination.split('-').map(word =>
+                                            word.charAt(0).toUpperCase() + word.slice(1)
+                                        ).join(' ')}
+                                    </Badge>
+                                )}
+                                {churchAttrs.serviceTime && (
+                                    <Badge colorScheme="cyan" p={2} borderRadius="md">
+                                        Service Time: {churchAttrs.serviceTime.charAt(0).toUpperCase() + churchAttrs.serviceTime.slice(1)}
+                                    </Badge>
+                                )}
+                                {churchAttrs.serviceNumber && (
+                                    <Badge colorScheme="pink" p={2} borderRadius="md">
+                                        Services per Week: {churchAttrs.serviceNumber}
+                                    </Badge>
+                                )}
+                                {churchAttrs.volunteering && (
+                                    <Badge colorScheme="yellow" p={2} borderRadius="md">
+                                        Offers Volunteering
+                                    </Badge>
+                                )}
+                                {churchAttrs.participatory && (
+                                    <Badge colorScheme="red" p={2} borderRadius="md">
+                                        Participatory Worship
+                                    </Badge>
+                                )}
+                            </HStack>
+                        </VStack>
+                    ) : (
+                        <Text>No attributes have been set for this church.</Text>
+                    )}
+                </Box>
+
                 {/* Volunteer Opportunity Section */}
                 <Box shadow='lg' rounded='lg' overflow='hidden' bg={bg} p={8}>
                     <HStack justify="space-between" mb={6}>
@@ -538,7 +654,7 @@ const ChurchInfo = () => {
                                                 ) : (
                                                     <Text color="red.500" fontWeight="bold">Inactive</Text>
                                                 )}
-                                                {currentUser && currentUser.userType === "churchRep" && (
+                                                {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
                                                     <HStack spacing={2}>
                                                         <IconButton
                                                             icon={<EditIcon />}
@@ -655,29 +771,33 @@ const ChurchInfo = () => {
                     </HStack>
 
                     <VStack spacing={4} align="stretch">
-                        {reviews.map((review) => {
-                            return (
-                                <Box key={review._id}>
-                                    <ReviewCard
-                                        review={review}
-                                        onEdit={
-                                            currentUser &&
-                                                currentUser.userType === "churchgoer" &&
-                                                currentUser._id === review.userId._id
-                                                ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`, { state: { from: 'church' } })
-                                                : null
-                                        }
-                                        onDelete={
-                                            currentUser &&
-                                                currentUser.userType === "churchgoer" &&
-                                                currentUser._id === review.userId._id
-                                                ? () => handleReviewDelete(review._id)
-                                                : null
-                                        }
-                                    />
-                                </Box>
-                            )
-                        })}
+                        {reviews.length === 0 ? (
+                            <Text>No reviews yet. Be the first to write a review!</Text>
+                        ) : (
+                            reviews.map((review) => {
+                                return (
+                                    <Box key={review._id}>
+                                        <ReviewCard
+                                            review={review}
+                                            onEdit={
+                                                currentUser &&
+                                                    currentUser.userType === "churchgoer" &&
+                                                    currentUser._id === review.userId._id
+                                                    ? () => navigate(`/review-edit/${review._id}?churchId=${churchId}`, { state: { from: 'church' } })
+                                                    : null
+                                            }
+                                            onDelete={
+                                                currentUser &&
+                                                    currentUser.userType === "churchgoer" &&
+                                                    currentUser._id === review.userId._id
+                                                    ? () => handleReviewDelete(review._id)
+                                                    : null
+                                            }
+                                        />
+                                    </Box>
+                                )
+                            })
+                        )}
                     </VStack>
                 </Box>
 

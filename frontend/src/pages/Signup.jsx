@@ -55,7 +55,8 @@ const Signup = () => {
             })
             // Redirect based on user type
             if (newUser.userType === "churchRep") {
-                navigate('/add-church-attributes')
+                // For church representatives, we need to create a church first
+                navigate('/new')
             } else {
                 navigate('/add-user-preferences')
             }

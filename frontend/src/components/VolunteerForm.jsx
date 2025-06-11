@@ -25,7 +25,7 @@ const VolunteerForm = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        isActive: false,
+        isActive: true,
         isMember: false,
         churchId: ''
     })
@@ -114,7 +114,7 @@ const VolunteerForm = () => {
     }
 
     return (
-        <Box maxW="md" mx="auto" p={6} bg="white" borderRadius="lg" boxShadow="md">
+        <Box maxW="md" mx="auto" p={6} bg="white" borderRadius="lg" boxShadow="md" marginTop={10} marginBottom={10}>
             <form onSubmit={handleSubmit}>
                 <VStack spacing={6} align="stretch">
                     <Heading size="lg">Create Volunteer Opportunity</Heading>
@@ -139,16 +139,6 @@ const VolunteerForm = () => {
                             placeholder="Tell us what the volunteer is going to do in this opportunity..."
                             rows={4}
                         />
-                    </FormControl>
-
-                    <FormControl>
-                        <Checkbox
-                            name="isActive"
-                            isChecked={formData.isActive}
-                            onChange={handleChange}
-                        >
-                            Is the opportunity still active?
-                        </Checkbox>
                     </FormControl>
 
                     <FormControl>

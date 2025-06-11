@@ -78,7 +78,7 @@ const CreateChurch = () => {
                 image: ""
             })
             setSelectedFile(null)
-            navigate(`/churches/${data._id}`)
+            navigate(`/add-church-attributes/${data._id}`)
         }
     }
 
@@ -171,7 +171,7 @@ const CreateChurch = () => {
                         />
                     </FormControl>
                     <FormControl isRequired>
-                        <FormLabel>Church Name</FormLabel>
+                        <FormLabel>Church Image</FormLabel>
                         <HStack w="full" spacing={4}>
                             <Input
                                 placeholder='Church Image URL'

@@ -55,7 +55,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/add-user-preferences" element={<AddUserPrefs />} />
-        <Route path="/add-church-attributes" element={<AddChurchAttrs />} />
+        <Route path="/add-church-attributes/:churchId" element={<AddChurchAttrs />} />
 
         <Route path="/churches/:churchId" element={<ChurchInfo />} />
 

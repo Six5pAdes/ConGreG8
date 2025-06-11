@@ -15,20 +15,26 @@ export const useChurchAttrStore = create((set) => ({
 
       const res = await fetch("/api/attributes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
         body: JSON.stringify(newChurchAttr),
       });
 
       const data = await res.json();
-      if (!data.success) throw new Error(data.message);
+      if (!data.success) {
+        throw new Error(data.message || "Failed to create church attributes");
+      }
 
       set((state) => ({ churchAttrs: [...state.churchAttrs, data.data] }));
       return {
         success: true,
         message: "Successfully created.",
-        data: data,
+        data: data.data,
       };
     } catch (error) {
+      console.error("Error creating church attributes:", error);
       set({ error: error.message });
       return { success: false, message: error.message };
     } finally {

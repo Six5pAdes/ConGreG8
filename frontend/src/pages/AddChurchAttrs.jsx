@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
     Box,
     Button,
@@ -22,10 +22,12 @@ import { useChurchAttrStore } from '../store/churchAttr'
 
 const AddChurchAttrs = () => {
     const navigate = useNavigate()
+    const { churchId } = useParams()
     const toast = useToast()
     const { createChurchAttr } = useChurchAttrStore()
 
     const [attributes, setAttributes] = useState({
+        churchId,
         size: '',
         ageGroup: '',
         ethnicity: '',

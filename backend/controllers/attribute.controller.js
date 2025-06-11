@@ -36,31 +36,39 @@ export const getSingleChurchAttr = async (req, res) => {
 };
 
 export const createChurchAttr = async (req, res) => {
-  const churchAttr = req.body;
-
-  if (req.user.userType === "churchgoer") {
-    return res.status(403).json({
-      success: false,
-      message:
-        "This is for church representatives to describe what their church provides for its congregants.",
-    });
-  }
-
-  if (!churchAttr.churchId) {
-    return res.status(400).json({
-      success: false,
-      message: "Church ID is required",
-    });
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(churchAttr.churchId)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid Church ID",
-    });
-  }
-
   try {
+    const churchAttr = req.body;
+
+    // Check if user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (req.user.userType === "churchgoer") {
+      return res.status(403).json({
+        success: false,
+        message:
+          "This is for church representatives to describe what their church provides for its congregants.",
+      });
+    }
+
+    if (!churchAttr.churchId) {
+      return res.status(400).json({
+        success: false,
+        message: "Church ID is required",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(churchAttr.churchId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Church ID",
+      });
+    }
+
     // Verify that the church belongs to the user
     const church = await Church.findById(churchAttr.churchId);
     if (!church) {
@@ -77,13 +85,20 @@ export const createChurchAttr = async (req, res) => {
       });
     }
 
+    // Add userId to the attributes
+    churchAttr.userId = req.user._id;
+
     const newChurchAttr = new ChurchAttribute(churchAttr);
     await newChurchAttr.save();
 
     res.status(201).json({ success: true, data: newChurchAttr });
   } catch (error) {
-    console.error("Error in creating churchAttr: ", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error("Error in creating churchAttr:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
 
