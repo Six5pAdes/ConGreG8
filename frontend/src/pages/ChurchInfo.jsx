@@ -37,13 +37,14 @@ const ChurchInfo = () => {
     const toast = useToast()
     const bg = useColorModeValue("white", "gray.800")
     const textColor = useColorModeValue("gray.800", "whiteAlpha.900")
+    const cardBg = useColorModeValue("white", "gray.700")
 
     // Store hooks
     const { fetchChurch, deleteChurch, updateChurch } = useChurchStore()
     const { fetchReviewByChurch, deleteReview } = useReviewStore()
     const { createSaved, deleteSaved, fetchSavedByUser } = useSavedStore()
     const { fetchVolunteerOpsByChurch, updateVolunteerOp, deleteVolunteerOp } = useVolunteerOpStore()
-    const { fetchSingleChurchAttr } = useChurchAttrStore()
+    const { fetchSingleChurchAttr, updateChurchAttr, deleteChurchAttr } = useChurchAttrStore()
 
     // State hooks
     const [church, setChurch] = useState(null)
@@ -206,6 +207,99 @@ const ChurchInfo = () => {
                 setChurch(data)
                 setUpdatedChurch(data)
             }
+        }
+    }
+
+    const handleEditAttrs = () => {
+        navigate(`/add-church-attributes/${churchId}`, {
+            state: { existingAttrs: churchAttrs }
+        })
+    }
+
+    const handleDeleteAttr = async (attrId, field) => {
+        if (!field) {
+            // If no field is specified, delete the entire preferences document
+            const { success, message } = await deleteChurchAttr(attrId)
+            if (success) {
+                setUserPrefs(null)
+                toast({
+                    title: "Success",
+                    description: "Attributes deleted successfully",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: "Error",
+                    description: message,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            }
+        } else {
+            // Update the attributes document to remove the specific field
+            const updatedAttrs = { ...churchAttrs }
+            if (Array.isArray(updatedAttrs[field])) {
+                updatedAttrs[field] = []
+            } else {
+                updatedAttrs[field] = null
+            }
+
+            const { success, message } = await updateChurchAttr(attrId, updatedAttrs)
+            if (success) {
+                setChurchAttrs(updatedAttrs)
+                toast({
+                    title: "Success",
+                    description: `${field} attribute removed successfully`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: "Error",
+                    description: message,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            }
+        }
+    }
+
+    const handleClearAllAttrs = async (attrId) => {
+        const clearedAttrs = {
+            size: [],
+            ageGroup: [],
+            ethnicity: [],
+            language: [],
+            denomination: [],
+            volunteering: false,
+            serviceTime: [],
+            serviceNumber: null,
+            participatory: false
+        }
+
+        const { success, message } = await updateChurchAttr(attrId, clearedAttrs)
+        if (success) {
+            setUserPrefs(clearedAttrs)
+            toast({
+                title: "Success",
+                description: "All attributes cleared successfully",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
         }
     }
 
@@ -549,71 +643,169 @@ const ChurchInfo = () => {
                             Church Attributes
                         </Heading>
                         {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
-                            <Button
-                                leftIcon={<AddIcon />}
-                                colorScheme="teal"
-                                onClick={() => navigate(`/add-church-attributes/${churchId}`)}
-                            >
-                                Edit Attributes
-                            </Button>
+                            <HStack>
+                                <Button
+                                    leftIcon={<EditIcon />}
+                                    colorScheme="teal"
+                                    onClick={handleEditAttrs}
+                                >
+                                    Edit Attributes
+                                </Button>
+                                <Button
+                                    leftIcon={<DeleteIcon />}
+                                    colorScheme="red"
+                                    size="sm"
+                                    onClick={() => handleClearAllAttrs(churchAttrs._id)}
+                                >
+                                    Delete All Attributes
+                                </Button>
+                            </HStack>
                         )}
                     </HStack>
 
-                    {churchAttrs ? (
-                        <VStack spacing={4} align="stretch">
+                    <VStack spacing={4} align="stretch">
+                        {churchAttrs ? (
                             <HStack wrap="wrap" spacing={4}>
-                                {churchAttrs.size && (
+                                {churchAttrs.size && churchAttrs.size.length > 0 && (
                                     <Badge colorScheme="blue" p={2} borderRadius="md">
-                                        Size: {churchAttrs.size.charAt(0).toUpperCase() + churchAttrs.size.slice(1)}
+                                        Size: {churchAttrs.size.map(size =>
+                                            size.charAt(0).toUpperCase() + size.slice(1)
+                                        ).join(', ')}
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'size')}
+                                            aria-label="Delete size attribute"
+                                        />
                                     </Badge>
                                 )}
-                                {churchAttrs.ageGroup && (
+                                {churchAttrs.ageGroup && churchAttrs.ageGroup.length > 0 && (
                                     <Badge colorScheme="green" p={2} borderRadius="md">
-                                        Age Group: {churchAttrs.ageGroup.split(/(?=[A-Z])/).join(' ')}
+                                        Age Group: {churchAttrs.ageGroup.map(group =>
+                                            group.split(/(?=[A-Z])/).join(' ')
+                                        ).join(', ')}
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'ageGroup')}
+                                            aria-label="Delete age group attribute"
+                                        />
                                     </Badge>
                                 )}
-                                {churchAttrs.ethnicity && (
+                                {churchAttrs.ethnicity && churchAttrs.ethnicity.length > 0 && (
                                     <Badge colorScheme="purple" p={2} borderRadius="md">
-                                        Ethnicity: {churchAttrs.ethnicity.split(/(?=[A-Z])/).join(' ')}
+                                        Ethnicity: {churchAttrs.ethnicity.map(ethnicity =>
+                                            ethnicity.split(/(?=[A-Z])/).join(' ')
+                                        ).join(', ')}
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'ethnicity')}
+                                            aria-label="Delete ethnicity attribute"
+                                        />
                                     </Badge>
                                 )}
-                                {churchAttrs.language && (
+                                {churchAttrs.language && churchAttrs.language.length > 0 && (
                                     <Badge colorScheme="orange" p={2} borderRadius="md">
-                                        Language: {churchAttrs.language.charAt(0).toUpperCase() + churchAttrs.language.slice(1)}
+                                        Language: {churchAttrs.language.map(lang =>
+                                            lang.charAt(0).toUpperCase() + lang.slice(1)
+                                        ).join(', ')}
                                     </Badge>
                                 )}
-                                {churchAttrs.denomination && (
+                                {churchAttrs.denomination && churchAttrs.denomination.length > 0 && (
                                     <Badge colorScheme="teal" p={2} borderRadius="md">
-                                        Denomination: {churchAttrs.denomination.split('-').map(word =>
-                                            word.charAt(0).toUpperCase() + word.slice(1)
-                                        ).join(' ')}
+                                        Denomination: {churchAttrs.denomination.map(denom =>
+                                            denom.split('-').map(word =>
+                                                word.charAt(0).toUpperCase() + word.slice(1)
+                                            ).join(' ')
+                                        ).join(', ')}
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'language')}
+                                            aria-label="Delete language attribute"
+                                        />
                                     </Badge>
                                 )}
-                                {churchAttrs.serviceTime && (
+                                {churchAttrs.serviceTime && churchAttrs.serviceTime.length > 0 && (
                                     <Badge colorScheme="cyan" p={2} borderRadius="md">
-                                        Service Time: {churchAttrs.serviceTime.charAt(0).toUpperCase() + churchAttrs.serviceTime.slice(1)}
+                                        Service Time: {churchAttrs.serviceTime.map(time =>
+                                            time.charAt(0).toUpperCase() + time.slice(1)
+                                        ).join(', ')}
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'serviceTime')}
+                                            aria-label="Delete serviceTime attribute"
+                                        />
                                     </Badge>
                                 )}
                                 {churchAttrs.serviceNumber && (
                                     <Badge colorScheme="pink" p={2} borderRadius="md">
                                         Services per Week: {churchAttrs.serviceNumber}
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'serviceNumber')}
+                                            aria-label="Delete serviceNumber attribute"
+                                        />
                                     </Badge>
                                 )}
                                 {churchAttrs.volunteering && (
                                     <Badge colorScheme="yellow" p={2} borderRadius="md">
                                         Offers Volunteering
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'volunteering')}
+                                            aria-label="Delete volunteering attribute"
+                                        />
                                     </Badge>
                                 )}
                                 {churchAttrs.participatory && (
                                     <Badge colorScheme="red" p={2} borderRadius="md">
                                         Participatory Worship
+                                        <IconButton
+                                            icon={<DeleteIcon />}
+                                            size="xs"
+                                            colorScheme="red"
+                                            variant="ghost"
+                                            ml={2}
+                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'participatory')}
+                                            aria-label="Delete participatory attribute"
+                                        />
                                     </Badge>
                                 )}
                             </HStack>
-                        </VStack>
-                    ) : (
-                        <Text>No attributes have been set for this church.</Text>
-                    )}
+                        ) : (
+                            <>
+                                <Text>No attributes have been set for this church.</Text>
+                                <Button onClick={() => navigate("/add-user-preferences")} textAlign={"center"} size={"sm"} colorScheme='purple'>Set Church Attributes</Button>
+                            </>
+
+                        )}
+                    </VStack>
                 </Box>
 
                 {/* Volunteer Opportunity Section */}
@@ -643,7 +835,7 @@ const ChurchInfo = () => {
                                     p={4}
                                     borderWidth="1px"
                                     borderRadius="lg"
-                                    bg={useColorModeValue("white", "gray.700")}
+                                    bg={cardBg}
                                 >
                                     <VStack align="stretch" spacing={2}>
                                         <HStack justify="space-between">

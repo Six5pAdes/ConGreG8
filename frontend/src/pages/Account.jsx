@@ -1,6 +1,6 @@
 import { useUserStore } from '../store/user'
 import { useUserPrefStore } from '../store/userPref'
-import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HStack, Text, Heading, Input, Button, IconButton, Select } from '@chakra-ui/react'
+import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HStack, Text, Heading, Input, Button, IconButton, Select, Badge } from '@chakra-ui/react'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
@@ -117,117 +117,94 @@ const Account = () => {
     }
 
     const handleEditPrefs = () => {
-        setEditingPrefs({ ...userPrefs })
-        setIsEditing(true)
+        navigate('/add-user-preferences', { state: { existingPrefs: userPrefs } })
     }
 
-    const handleCancelEdit = () => {
-        setEditingPrefs(null)
-        setIsEditing(false)
-    }
-
-    const handleSavePrefs = async () => {
-        const { success, message } = await updateUserPref(userPrefs._id, editingPrefs)
-        if (success) {
-            setUserPrefs(editingPrefs)
-            setIsEditing(false)
-            setEditingPrefs(null)
-            toast({
-                title: "Success",
-                description: "Preferences updated successfully",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            })
+    const handleDeletePref = async (prefId, field) => {
+        if (!field) {
+            // If no field is specified, delete the entire preferences document
+            const { success, message } = await deleteUserPref(prefId)
+            if (success) {
+                setUserPrefs(null)
+                toast({
+                    title: "Success",
+                    description: "Preferences deleted successfully",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: "Error",
+                    description: message,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            }
         } else {
-            toast({
-                title: "Error",
-                description: message,
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            })
+            // Update the preferences document to remove the specific field
+            const updatedPrefs = { ...userPrefs }
+            if (Array.isArray(updatedPrefs[field])) {
+                updatedPrefs[field] = []
+            } else {
+                updatedPrefs[field] = null
+            }
+
+            const { success, message } = await updateUserPref(prefId, updatedPrefs)
+            if (success) {
+                setUserPrefs(updatedPrefs)
+                toast({
+                    title: "Success",
+                    description: `${field} preference removed successfully`,
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: "Error",
+                    description: message,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                })
+            }
         }
     }
 
-    const handleDeletePref = async (prefId) => {
-        const { success, message } = await deleteUserPref(prefId)
-        if (success) {
-            setUserPrefs(null)
-            toast({
-                title: "Success",
-                description: "Preferences deleted successfully",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            })
-        } else {
-            toast({
-                title: "Error",
-                description: message,
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            })
-        }
-    }
-
-    const handleClearAllPrefs = () => {
-        setEditingPrefs({
-            size: null,
-            ageGroup: null,
-            ethnicity: null,
-            language: null,
-            denomination: null,
+    const handleClearAllPrefs = async (prefId) => {
+        const clearedPrefs = {
+            size: [],
+            ageGroup: [],
+            ethnicity: [],
+            language: [],
+            denomination: [],
             volunteering: false,
-            serviceTime: null,
-            serviceNumber: null
-        });
-    }
+            serviceTime: [],
+            serviceNumber: null,
+            participatory: false
+        }
 
-    const PreferenceRow = ({ label, field, value, options }) => {
-        const isEditingField = isEditing && editingPrefs !== null
-
-        return (
-            <HStack spacing={8} justify="space-between" align="center">
-                <Text>{label}:</Text>
-                <HStack spacing={2}>
-                    {isEditingField ? (
-                        options ? (
-                            <Select
-                                value={editingPrefs[field]}
-                                onChange={(e) => setEditingPrefs({ ...editingPrefs, [field]: e.target.value })}
-                                size="sm"
-                                width="200px"
-                            >
-                                {options.map(option => (
-                                    <option key={option} value={option}>{option}</option>
-                                ))}
-                            </Select>
-                        ) : (
-                            <Input
-                                value={editingPrefs[field]}
-                                onChange={(e) => setEditingPrefs({ ...editingPrefs, [field]: e.target.value })}
-                                size="sm"
-                                width="200px"
-                            />
-                        )
-                    ) : (
-                        <Text fontWeight="bold">{value}</Text>
-                    )}
-                    {isEditingField && (
-                        <IconButton
-                            icon={<DeleteIcon />}
-                            size="sm"
-                            colorScheme="red"
-                            variant="ghost"
-                            onClick={() => setEditingPrefs({ ...editingPrefs, [field]: null })}
-                            aria-label="Clear preference"
-                        />
-                    )}
-                </HStack>
-            </HStack>
-        )
+        const { success, message } = await updateUserPref(prefId, clearedPrefs)
+        if (success) {
+            setUserPrefs(clearedPrefs)
+            toast({
+                title: "Success",
+                description: "All preferences cleared successfully",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: "Error",
+                description: message,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
+        }
     }
 
     return (
@@ -285,26 +262,12 @@ const Account = () => {
                             <Heading as="h1" size="2xl" color={textColor}>
                                 {currentUser?.username}'s Church Preferences
                             </Heading>
-                            {userPrefs && !isEditing && (
-                                <Button
-                                    leftIcon={<EditIcon />}
-                                    colorScheme="blue"
-                                    size="sm"
-                                    onClick={handleEditPrefs}
-                                >
-                                    Edit Preferences
-                                </Button>
-                            )}
-                            {isEditing && (
-                                <HStack spacing={2}>
-                                    <Button
-                                        leftIcon={<DeleteIcon />}
-                                        colorScheme="red"
-                                        size="sm"
-                                        onClick={handleClearAllPrefs}
-                                    >
-                                        Clear All
-                                    </Button>
+                            {userPrefs && Object.values(userPrefs).some(value =>
+                                (Array.isArray(value) && value.length > 0) ||
+                                (typeof value === 'boolean' && value) ||
+                                (typeof value === 'number' && value !== null)
+                            ) ? (
+                                <HStack>
                                     <Button
                                         leftIcon={<EditIcon />}
                                         colorScheme="blue"
@@ -313,91 +276,178 @@ const Account = () => {
                                     >
                                         Edit Preferences
                                     </Button>
+                                    <Button
+                                        leftIcon={<DeleteIcon />}
+                                        colorScheme="red"
+                                        size="sm"
+                                        onClick={() => handleClearAllPrefs(userPrefs._id)}
+                                    >
+                                        Delete All Preferences
+                                    </Button>
                                 </HStack>
-                            )}
+                            ) : null}
                         </HStack>
 
                         <VStack align="stretch" spacing={4}>
-                            {userPrefs ? (
-                                <>
-                                    <PreferenceRow
-                                        label="Preferred Church Size"
-                                        field="size"
-                                        value={userPrefs.size}
-                                        options={["--", "Small", "Midsize", "Big", "Megachurch"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Preferred Age Group"
-                                        field="ageGroup"
-                                        value={userPrefs.ageGroup}
-                                        options={["--", "Family", "Young Adult", "Adult", "Senior"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Preferred Ethnicity"
-                                        field="ethnicity"
-                                        value={userPrefs.ethnicity}
-                                        options={["--", "African American", "Asian", "Caucasian", "Hispanic", "Pacific Islander", "Other"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Preferred Language"
-                                        field="language"
-                                        value={userPrefs.language}
-                                        options={["--", "English", "Spanish", "French", "German", "Mandarin", "Korean", "Other"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Preferred Denomination"
-                                        field="denomination"
-                                        value={userPrefs.denomination}
-                                        options={["--", "Baptist", "Catholic", "Evangelical", "Lutheran", "Methodist", "Orthodox", "Pentecostal", "Presbyterian", "non-denominational"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Preferred Service Time"
-                                        field="serviceTime"
-                                        value={userPrefs.serviceTime}
-                                        options={["--", "Morning", "Afternoon", "Evening"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Number of Services"
-                                        field="serviceNumber"
-                                        value={userPrefs.serviceNumber}
-                                    />
-                                    <PreferenceRow
-                                        label="Interested in Volunteering"
-                                        field="volunteering"
-                                        value={userPrefs.volunteering ? "Yes" : "No"}
-                                        options={["True", "False"]}
-                                    />
-                                    <PreferenceRow
-                                        label="Looking for Participatory"
-                                        field="participatory"
-                                        value={userPrefs.participatory ? "Yes" : "No"}
-                                        options={["True", "False"]}
-                                    />
-                                    {isEditing && (
-                                        <HStack justify="flex-end" spacing={4} mt={4}>
-                                            <Button
-                                                leftIcon={<CheckIcon />}
-                                                colorScheme="green"
-                                                size="sm"
-                                                onClick={handleSavePrefs}
-                                            >
-                                                Save Changes
-                                            </Button>
-                                            <Button
-                                                leftIcon={<CloseIcon />}
-                                                colorScheme="gray"
-                                                size="sm"
-                                                onClick={handleCancelEdit}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </HStack>
+                            {userPrefs && Object.values(userPrefs).some(value =>
+                                (Array.isArray(value) && value.length > 0) ||
+                                (typeof value === 'boolean' && value) ||
+                                (typeof value === 'number' && value !== null)
+                            ) ? (
+                                <HStack wrap="wrap" spacing={4}>
+                                    {userPrefs.size && userPrefs.size.length > 0 && (
+                                        <Badge colorScheme="blue" p={2} borderRadius="md">
+                                            Size: {userPrefs.size.map(size =>
+                                                size.charAt(0).toUpperCase() + size.slice(1)
+                                            ).join(', ')}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'size')}
+                                                aria-label="Delete size preference"
+                                            />
+                                        </Badge>
                                     )}
-                                </>
+                                    {userPrefs.ageGroup && userPrefs.ageGroup.length > 0 && (
+                                        <Badge colorScheme="green" p={2} borderRadius="md">
+                                            Age Group: {userPrefs.ageGroup.map(group =>
+                                                group.split(/(?=[A-Z])/).join(' ')
+                                            ).join(', ')}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'ageGroup')}
+                                                aria-label="Delete age group preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.ethnicity && userPrefs.ethnicity.length > 0 && (
+                                        <Badge colorScheme="purple" p={2} borderRadius="md">
+                                            Ethnicity: {userPrefs.ethnicity.map(ethnicity =>
+                                                ethnicity.split(/(?=[A-Z])/).join(' ')
+                                            ).join(', ')}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'ethnicity')}
+                                                aria-label="Delete ethnicity preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.language && userPrefs.language.length > 0 && (
+                                        <Badge colorScheme="orange" p={2} borderRadius="md">
+                                            Language: {userPrefs.language.map(lang =>
+                                                lang.charAt(0).toUpperCase() + lang.slice(1)
+                                            ).join(', ')}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'language')}
+                                                aria-label="Delete language preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.denomination && userPrefs.denomination.length > 0 && (
+                                        <Badge colorScheme="teal" p={2} borderRadius="md">
+                                            Denomination: {userPrefs.denomination.map(denom =>
+                                                denom.split('-').map(word =>
+                                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                                ).join(' ')
+                                            ).join(', ')}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'denomination')}
+                                                aria-label="Delete denomination preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.serviceTime && userPrefs.serviceTime.length > 0 && (
+                                        <Badge colorScheme="cyan" p={2} borderRadius="md">
+                                            Service Time: {userPrefs.serviceTime.map(time =>
+                                                time.charAt(0).toUpperCase() + time.slice(1)
+                                            ).join(', ')}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'serviceTime')}
+                                                aria-label="Delete service time preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.serviceNumber && (
+                                        <Badge colorScheme="pink" p={2} borderRadius="md">
+                                            Services per Week: {userPrefs.serviceNumber}
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'serviceNumber')}
+                                                aria-label="Delete service number preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.volunteering && (
+                                        <Badge colorScheme="yellow" p={2} borderRadius="md">
+                                            Interested in Volunteering
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'volunteering')}
+                                                aria-label="Delete volunteering preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                    {userPrefs.participatory && (
+                                        <Badge colorScheme="red" p={2} borderRadius="md">
+                                            Prefers Participatory Worship
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeletePref(userPrefs._id, 'participatory')}
+                                                aria-label="Delete participatory preference"
+                                            />
+                                        </Badge>
+                                    )}
+                                </HStack>
                             ) : (
                                 <>
                                     <Text textAlign="center">No preferences set yet</Text>
-                                    <Button onClick={() => navigate("/add-user-preferences")} textAlign={"center"}>Set User Preferences</Button>
+                                    <Box display="flex" justifyContent="center" mt={4}>
+                                        <Button
+                                            onClick={() => navigate("/add-user-preferences")}
+                                            size="sm"
+                                            colorScheme='purple'
+                                        >
+                                            Set User Preferences
+                                        </Button>
+                                    </Box>
                                 </>
                             )}
                         </VStack>
