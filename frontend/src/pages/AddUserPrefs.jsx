@@ -21,24 +21,26 @@ import {
     Stack,
 } from '@chakra-ui/react'
 import { useUserPrefStore } from '../store/userPref'
+import { useUserStore } from '../store/user'
 
 const AddUserPrefs = () => {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const toast = useToast()
+    const { currentUser } = useUserStore()
     const { createUserPref, updateUserPref } = useUserPrefStore()
+    const navigate = useNavigate()
+    const toast = useToast()
+    const location = useLocation()
     const existingPrefs = location.state?.existingPrefs
 
     const [preferences, setPreferences] = useState({
-        size: '',
-        ageGroups: [],
-        ethnicities: [],
-        languages: [],
-        denominations: [],
-        volunteering: false,
-        serviceNumber: 1,
-        serviceTime: '',
-        participatory: false
+        size: existingPrefs?.size?.[0] || '',
+        ageGroups: existingPrefs?.ageGroup || [],
+        ethnicities: existingPrefs?.ethnicity || [],
+        languages: existingPrefs?.language || [],
+        denominations: existingPrefs?.denomination || [],
+        serviceTime: existingPrefs?.serviceTime?.[0] || '',
+        volunteering: existingPrefs?.volunteering || false,
+        serviceNumber: existingPrefs?.serviceNumber || 1,
+        participatory: existingPrefs?.participatory || false
     })
 
     useEffect(() => {
@@ -72,70 +74,111 @@ const AddUserPrefs = () => {
         }))
     }
 
-    const handleNumberChange = (value, name) => {
+    const handleServiceNumberChange = (valueString) => {
+        const value = parseInt(valueString)
         setPreferences(prev => ({
             ...prev,
-            [name]: value
+            serviceNumber: isNaN(value) ? 1 : value
         }))
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        console.log("Form submitted")
+        console.log("Current user:", currentUser)
+        console.log("Original preferences:", preferences)
+
+        // Format the preferences properly
         const formattedPrefs = {
-            ...preferences,
+            userId: existingPrefs?.userId || currentUser?._id,
             size: preferences.size ? [preferences.size] : [],
-            ageGroup: preferences.ageGroups,
-            ethnicity: preferences.ethnicities,
-            language: preferences.languages,
-            denomination: preferences.denominations,
+            ageGroup: preferences.ageGroups || [],
+            ethnicity: preferences.ethnicities || [],
+            language: preferences.languages || [],
+            denomination: preferences.denominations || [],
             serviceTime: preferences.serviceTime ? [preferences.serviceTime] : [],
+            volunteering: preferences.volunteering || false,
+            serviceNumber: preferences.serviceNumber || 1,
+            participatory: preferences.participatory || false
         }
 
-        if (existingPrefs) {
-            const { success, message } = await updateUserPref(existingPrefs._id, formattedPrefs)
-            if (success) {
-                toast({
-                    title: "Success",
-                    description: "Preferences updated successfully",
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
-                })
-                navigate('/profile/' + existingPrefs.userId)
+        console.log("Formatted preferences being sent:", formattedPrefs)
+
+        try {
+            if (existingPrefs) {
+                console.log("Updating existing preferences:", existingPrefs._id)
+                const { success, message } = await updateUserPref(existingPrefs._id, formattedPrefs)
+                console.log("Update response:", { success, message })
+                if (success) {
+                    toast({
+                        title: "Success",
+                        description: "Preferences updated successfully",
+                        status: "success",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                    navigate('/profile/' + existingPrefs.userId)
+                } else {
+                    console.error("Update failed:", message)
+                    toast({
+                        title: "Error",
+                        description: message,
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                }
             } else {
-                toast({
-                    title: "Error",
-                    description: message,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
-                })
+                console.log("Creating new preferences")
+                const { success, message } = await createUserPref(formattedPrefs)
+                console.log("Create response:", { success, message })
+                if (success) {
+                    toast({
+                        title: "Success",
+                        description: "Preferences saved successfully",
+                        status: "success",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                    navigate('/')
+                } else {
+                    console.error("Create failed:", message)
+                    toast({
+                        title: "Error",
+                        description: message,
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                }
             }
-        } else {
-            const { success, message } = await createUserPref(formattedPrefs)
-            if (success) {
-                toast({
-                    title: "Success",
-                    description: "Preferences saved successfully",
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
-                })
-                navigate('/')
-            } else {
-                toast({
-                    title: "Error",
-                    description: message,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
-                })
-            }
+        } catch (error) {
+            console.error("Error in handleSubmit:", error)
+            toast({
+                title: "Error",
+                description: "An error occurred while saving preferences",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
         }
     }
 
     const handleSkip = () => {
         navigate('/')
+    }
+
+    // Add logging for preference changes
+    const handlePreferenceChange = (name, value) => {
+        console.log(`Changing ${name} to:`, value)
+        setPreferences(prev => {
+            const newPrefs = {
+                ...prev,
+                [name]: value
+            }
+            console.log("New preferences state:", newPrefs)
+            return newPrefs
+        })
     }
 
     return (
@@ -156,7 +199,7 @@ const AddUserPrefs = () => {
                     <VStack spacing={6}>
                         <FormControl>
                             <FormLabel>Preferred Church Size</FormLabel>
-                            <Select name="size" value={preferences.size} onChange={handleChange}>
+                            <Select name="size" value={preferences.size} onChange={(e) => handlePreferenceChange('size', e.target.value)}>
                                 <option value="" disabled>Select size</option>
                                 <option value="small">Small (25-200 members)</option>
                                 <option value="midsize">Midsize (200-400 members)</option>
@@ -225,7 +268,7 @@ const AddUserPrefs = () => {
 
                         <FormControl>
                             <FormLabel>Preferred Service Time</FormLabel>
-                            <Select name="serviceTime" value={preferences.serviceTime} onChange={handleChange}>
+                            <Select name="serviceTime" value={preferences.serviceTime} onChange={(e) => handlePreferenceChange('serviceTime', e.target.value)}>
                                 <option value="" disabled>Select service time</option>
                                 <option value="morning">Morning</option>
                                 <option value="afternoon">Afternoon</option>
@@ -234,12 +277,12 @@ const AddUserPrefs = () => {
                         </FormControl>
 
                         <FormControl>
-                            <FormLabel>Number of Services per Week</FormLabel>
+                            <FormLabel>How many services do you attend per week?</FormLabel>
                             <NumberInput
                                 min={1}
                                 max={7}
                                 value={preferences.serviceNumber}
-                                onChange={(value) => handleNumberChange(value, 'serviceNumber')}
+                                onChange={(valueString) => handlePreferenceChange('serviceNumber', parseInt(valueString) || 1)}
                             >
                                 <NumberInputField />
                                 <NumberInputStepper>
@@ -253,7 +296,7 @@ const AddUserPrefs = () => {
                             <Checkbox
                                 name="volunteering"
                                 isChecked={preferences.volunteering}
-                                onChange={handleChange}
+                                onChange={(e) => handlePreferenceChange('volunteering', e.target.checked)}
                             >
                                 Interested in volunteering opportunities
                             </Checkbox>
@@ -263,7 +306,7 @@ const AddUserPrefs = () => {
                             <Checkbox
                                 name="participatory"
                                 isChecked={preferences.participatory}
-                                onChange={handleChange}
+                                onChange={(e) => handlePreferenceChange('participatory', e.target.checked)}
                             >
                                 Prefer participatory worship style
                             </Checkbox>

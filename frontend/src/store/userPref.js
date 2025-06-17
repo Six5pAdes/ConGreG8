@@ -2,10 +2,12 @@ import { create } from "zustand";
 
 export const useUserPrefStore = create((set) => ({
   userPrefs: [],
+  currentUserPrefs: null,
   isLoading: false,
   error: null,
 
   setUserPrefs: (userPrefs) => set({ userPrefs }),
+  setCurrentUserPrefs: (prefs) => set({ currentUserPrefs: prefs }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
 
@@ -22,7 +24,11 @@ export const useUserPrefStore = create((set) => ({
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
 
-      set((state) => ({ userPrefs: [...state.userPrefs, data.data] }));
+      set((state) => ({
+        userPrefs: [...state.userPrefs, data.data],
+        currentUserPrefs: data.data,
+      }));
+
       return {
         success: true,
         message: "Successfully created.",
@@ -56,6 +62,7 @@ export const useUserPrefStore = create((set) => ({
       const res = await fetch(`/api/user-prefs/${upid}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
+      set({ currentUserPrefs: data.data });
       return { success: true, data: data.data };
     } catch (error) {
       set({ error: error.message });
@@ -82,6 +89,7 @@ export const useUserPrefStore = create((set) => ({
         userPrefs: state.userPrefs.map((userPref) =>
           userPref._id === upid ? data.data : userPref
         ),
+        currentUserPrefs: data.data,
       }));
 
       return { success: true, message: data.message };
@@ -106,6 +114,7 @@ export const useUserPrefStore = create((set) => ({
 
       set((state) => ({
         userPrefs: state.userPrefs.filter((userPref) => userPref._id !== upid),
+        currentUserPrefs: null,
       }));
 
       return { success: true, message: data.message };

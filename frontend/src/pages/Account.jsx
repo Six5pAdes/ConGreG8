@@ -9,12 +9,10 @@ import { EditIcon, DeleteIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 const Account = () => {
     const { userId } = useParams()
     const { currentUser, fetchUser, logout, updateUser, deleteUser } = useUserStore()
-    const { fetchSingleUserPref, updateUserPref, deleteUserPref } = useUserPrefStore()
+    const { fetchSingleUserPref, updateUserPref, deleteUserPref, currentUserPrefs } = useUserPrefStore()
 
     const [user, setUser] = useState(null)
     const [updatedUser, setUpdatedUser] = useState(null)
-    const [userPrefs, setUserPrefs] = useState(null)
-    const [editingPrefs, setEditingPrefs] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
 
     const bg = useColorModeValue("white", "gray.800")
@@ -33,15 +31,19 @@ const Account = () => {
                 setUpdatedUser(data)
                 // Fetch user preferences if user is a churchgoer
                 if (data.userType === "churchgoer") {
+                    console.log("Fetching preferences for user:", data._id)
                     const { success: prefSuccess, data: prefData } = await fetchSingleUserPref(data._id)
-                    if (prefSuccess) {
-                        setUserPrefs(prefData)
-                    }
+                    console.log("Preferences fetch result:", { prefSuccess, prefData })
                 }
             }
         }
         loadUser()
     }, [userId, fetchUser, fetchSingleUserPref])
+
+    // Add a debug effect to monitor userPrefs state
+    useEffect(() => {
+        console.log("Current userPrefs state:", currentUserPrefs)
+    }, [currentUserPrefs])
 
     const handleDelete = async (uid) => {
         const { success, message } = await deleteUser(uid)
@@ -117,7 +119,7 @@ const Account = () => {
     }
 
     const handleEditPrefs = () => {
-        navigate('/add-user-preferences', { state: { existingPrefs: userPrefs } })
+        navigate('/add-user-preferences', { state: { existingPrefs: currentUserPrefs } })
     }
 
     const handleDeletePref = async (prefId, field) => {
@@ -125,7 +127,6 @@ const Account = () => {
             // If no field is specified, delete the entire preferences document
             const { success, message } = await deleteUserPref(prefId)
             if (success) {
-                setUserPrefs(null)
                 toast({
                     title: "Success",
                     description: "Preferences deleted successfully",
@@ -144,7 +145,7 @@ const Account = () => {
             }
         } else {
             // Update the preferences document to remove the specific field
-            const updatedPrefs = { ...userPrefs }
+            const updatedPrefs = { ...currentUserPrefs }
             if (Array.isArray(updatedPrefs[field])) {
                 updatedPrefs[field] = []
             } else {
@@ -153,7 +154,6 @@ const Account = () => {
 
             const { success, message } = await updateUserPref(prefId, updatedPrefs)
             if (success) {
-                setUserPrefs(updatedPrefs)
                 toast({
                     title: "Success",
                     description: `${field} preference removed successfully`,
@@ -188,7 +188,6 @@ const Account = () => {
 
         const { success, message } = await updateUserPref(prefId, clearedPrefs)
         if (success) {
-            setUserPrefs(clearedPrefs)
             toast({
                 title: "Success",
                 description: "All preferences cleared successfully",
@@ -262,11 +261,7 @@ const Account = () => {
                             <Heading as="h1" size="2xl" color={textColor}>
                                 {currentUser?.username}'s Church Preferences
                             </Heading>
-                            {userPrefs && Object.values(userPrefs).some(value =>
-                                (Array.isArray(value) && value.length > 0) ||
-                                (typeof value === 'boolean' && value) ||
-                                (typeof value === 'number' && value !== null)
-                            ) ? (
+                            {currentUserPrefs && (
                                 <HStack>
                                     <Button
                                         leftIcon={<EditIcon />}
@@ -280,24 +275,20 @@ const Account = () => {
                                         leftIcon={<DeleteIcon />}
                                         colorScheme="red"
                                         size="sm"
-                                        onClick={() => handleClearAllPrefs(userPrefs._id)}
+                                        onClick={() => handleClearAllPrefs(currentUserPrefs._id)}
                                     >
                                         Delete All Preferences
                                     </Button>
                                 </HStack>
-                            ) : null}
+                            )}
                         </HStack>
 
                         <VStack align="stretch" spacing={4}>
-                            {userPrefs && Object.values(userPrefs).some(value =>
-                                (Array.isArray(value) && value.length > 0) ||
-                                (typeof value === 'boolean' && value) ||
-                                (typeof value === 'number' && value !== null)
-                            ) ? (
+                            {currentUserPrefs && (
                                 <HStack wrap="wrap" spacing={4}>
-                                    {userPrefs.size && userPrefs.size.length > 0 && (
+                                    {currentUserPrefs.size && currentUserPrefs.size.length > 0 && (
                                         <Badge colorScheme="blue" p={2} borderRadius="md">
-                                            Size: {userPrefs.size.map(size =>
+                                            Size: {currentUserPrefs.size.map(size =>
                                                 size.charAt(0).toUpperCase() + size.slice(1)
                                             ).join(', ')}
                                             <IconButton
@@ -306,14 +297,14 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'size')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'size')}
                                                 aria-label="Delete size preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.ageGroup && userPrefs.ageGroup.length > 0 && (
+                                    {currentUserPrefs.ageGroup && currentUserPrefs.ageGroup.length > 0 && (
                                         <Badge colorScheme="green" p={2} borderRadius="md">
-                                            Age Group: {userPrefs.ageGroup.map(group =>
+                                            Age Group: {currentUserPrefs.ageGroup.map(group =>
                                                 group.split(/(?=[A-Z])/).join(' ')
                                             ).join(', ')}
                                             <IconButton
@@ -322,14 +313,14 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'ageGroup')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'ageGroup')}
                                                 aria-label="Delete age group preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.ethnicity && userPrefs.ethnicity.length > 0 && (
+                                    {currentUserPrefs.ethnicity && currentUserPrefs.ethnicity.length > 0 && (
                                         <Badge colorScheme="purple" p={2} borderRadius="md">
-                                            Ethnicity: {userPrefs.ethnicity.map(ethnicity =>
+                                            Ethnicity: {currentUserPrefs.ethnicity.map(ethnicity =>
                                                 ethnicity.split(/(?=[A-Z])/).join(' ')
                                             ).join(', ')}
                                             <IconButton
@@ -338,14 +329,14 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'ethnicity')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'ethnicity')}
                                                 aria-label="Delete ethnicity preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.language && userPrefs.language.length > 0 && (
+                                    {currentUserPrefs.language && currentUserPrefs.language.length > 0 && (
                                         <Badge colorScheme="orange" p={2} borderRadius="md">
-                                            Language: {userPrefs.language.map(lang =>
+                                            Language: {currentUserPrefs.language.map(lang =>
                                                 lang.charAt(0).toUpperCase() + lang.slice(1)
                                             ).join(', ')}
                                             <IconButton
@@ -354,14 +345,14 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'language')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'language')}
                                                 aria-label="Delete language preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.denomination && userPrefs.denomination.length > 0 && (
+                                    {currentUserPrefs.denomination && currentUserPrefs.denomination.length > 0 && (
                                         <Badge colorScheme="teal" p={2} borderRadius="md">
-                                            Denomination: {userPrefs.denomination.map(denom =>
+                                            Denomination: {currentUserPrefs.denomination.map(denom =>
                                                 denom.split('-').map(word =>
                                                     word.charAt(0).toUpperCase() + word.slice(1)
                                                 ).join(' ')
@@ -372,14 +363,14 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'denomination')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'denomination')}
                                                 aria-label="Delete denomination preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.serviceTime && userPrefs.serviceTime.length > 0 && (
+                                    {currentUserPrefs.serviceTime && currentUserPrefs.serviceTime.length > 0 && (
                                         <Badge colorScheme="cyan" p={2} borderRadius="md">
-                                            Service Time: {userPrefs.serviceTime.map(time =>
+                                            Service Time: {currentUserPrefs.serviceTime.map(time =>
                                                 time.charAt(0).toUpperCase() + time.slice(1)
                                             ).join(', ')}
                                             <IconButton
@@ -388,26 +379,26 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'serviceTime')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'serviceTime')}
                                                 aria-label="Delete service time preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.serviceNumber && (
+                                    {currentUserPrefs.serviceNumber && currentUserPrefs.serviceNumber > 0 && (
                                         <Badge colorScheme="pink" p={2} borderRadius="md">
-                                            Services per Week: {userPrefs.serviceNumber}
+                                            Services per Week: {currentUserPrefs.serviceNumber}
                                             <IconButton
                                                 icon={<DeleteIcon />}
                                                 size="xs"
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'serviceNumber')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'serviceNumber')}
                                                 aria-label="Delete service number preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.volunteering && (
+                                    {currentUserPrefs.volunteering && (
                                         <Badge colorScheme="yellow" p={2} borderRadius="md">
                                             Interested in Volunteering
                                             <IconButton
@@ -416,12 +407,12 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'volunteering')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'volunteering')}
                                                 aria-label="Delete volunteering preference"
                                             />
                                         </Badge>
                                     )}
-                                    {userPrefs.participatory && (
+                                    {currentUserPrefs.participatory && (
                                         <Badge colorScheme="red" p={2} borderRadius="md">
                                             Prefers Participatory Worship
                                             <IconButton
@@ -430,26 +421,37 @@ const Account = () => {
                                                 colorScheme="red"
                                                 variant="ghost"
                                                 ml={2}
-                                                onClick={() => handleDeletePref(userPrefs._id, 'participatory')}
+                                                onClick={() => handleDeletePref(currentUserPrefs._id, 'participatory')}
                                                 aria-label="Delete participatory preference"
                                             />
                                         </Badge>
                                     )}
                                 </HStack>
-                            ) : (
-                                <>
-                                    <Text textAlign="center">No preferences set yet</Text>
-                                    <Box display="flex" justifyContent="center" mt={4}>
-                                        <Button
-                                            onClick={() => navigate("/add-user-preferences")}
-                                            size="sm"
-                                            colorScheme='purple'
-                                        >
-                                            Set User Preferences
-                                        </Button>
-                                    </Box>
-                                </>
                             )}
+                            {(!currentUserPrefs || (
+                                (!currentUserPrefs.size || currentUserPrefs.size.length === 0) &&
+                                (!currentUserPrefs.ageGroup || currentUserPrefs.ageGroup.length === 0) &&
+                                (!currentUserPrefs.ethnicity || currentUserPrefs.ethnicity.length === 0) &&
+                                (!currentUserPrefs.language || currentUserPrefs.language.length === 0) &&
+                                (!currentUserPrefs.denomination || currentUserPrefs.denomination.length === 0) &&
+                                (!currentUserPrefs.serviceTime || currentUserPrefs.serviceTime.length === 0) &&
+                                (!currentUserPrefs.serviceNumber || currentUserPrefs.serviceNumber === 0) &&
+                                !currentUserPrefs.volunteering &&
+                                !currentUserPrefs.participatory
+                            )) && (
+                                    <>
+                                        <Text textAlign="center">No preferences set yet</Text>
+                                        <Box display="flex" justifyContent="center" mt={4}>
+                                            <Button
+                                                onClick={() => navigate("/add-user-preferences")}
+                                                size="sm"
+                                                colorScheme='purple'
+                                            >
+                                                Set User Preferences
+                                            </Button>
+                                        </Box>
+                                    </>
+                                )}
                         </VStack>
                     </Box>
                 )}

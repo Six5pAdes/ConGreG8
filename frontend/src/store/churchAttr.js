@@ -2,10 +2,12 @@ import { create } from "zustand";
 
 export const useChurchAttrStore = create((set) => ({
   churchAttrs: [],
+  currentChurchAttrs: null,
   isLoading: false,
   error: null,
 
   setChurchAttrs: (churchAttrs) => set({ churchAttrs }),
+  setCurrentChurchAttrs: (attrs) => set({ currentChurchAttrs: attrs }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
 
@@ -27,7 +29,11 @@ export const useChurchAttrStore = create((set) => ({
         throw new Error(data.message || "Failed to create church attributes");
       }
 
-      set((state) => ({ churchAttrs: [...state.churchAttrs, data.data] }));
+      set((state) => ({
+        churchAttrs: [...state.churchAttrs, data.data],
+        currentChurchAttrs: data.data,
+      }));
+
       return {
         success: true,
         message: "Successfully created.",
@@ -62,6 +68,7 @@ export const useChurchAttrStore = create((set) => ({
       const res = await fetch(`/api/attributes/${caid}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
+      set({ currentChurchAttrs: data.data });
       return { success: true, data: data.data };
     } catch (error) {
       set({ error: error.message });
@@ -88,6 +95,7 @@ export const useChurchAttrStore = create((set) => ({
         churchAttrs: state.churchAttrs.map((churchAttr) =>
           churchAttr._id === caid ? data.data : churchAttr
         ),
+        currentChurchAttrs: data.data,
       }));
 
       return { success: true, message: data.message };
@@ -114,6 +122,7 @@ export const useChurchAttrStore = create((set) => ({
         churchAttrs: state.userPrefs.filter(
           (churchAttr) => churchAttr._id !== caid
         ),
+        currentChurchAttrs: null,
       }));
 
       return { success: true, message: data.message };

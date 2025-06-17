@@ -671,15 +671,17 @@ const ChurchInfo = () => {
                                         Size: {churchAttrs.size.map(size =>
                                             size.charAt(0).toUpperCase() + size.slice(1)
                                         ).join(', ')}
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'size')}
-                                            aria-label="Delete size attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'size')}
+                                                aria-label="Delete size attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.ageGroup && churchAttrs.ageGroup.length > 0 && (
@@ -687,15 +689,17 @@ const ChurchInfo = () => {
                                         Age Group: {churchAttrs.ageGroup.map(group =>
                                             group.split(/(?=[A-Z])/).join(' ')
                                         ).join(', ')}
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'ageGroup')}
-                                            aria-label="Delete age group attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'ageGroup')}
+                                                aria-label="Delete age group attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.ethnicity && churchAttrs.ethnicity.length > 0 && (
@@ -703,15 +707,17 @@ const ChurchInfo = () => {
                                         Ethnicity: {churchAttrs.ethnicity.map(ethnicity =>
                                             ethnicity.split(/(?=[A-Z])/).join(' ')
                                         ).join(', ')}
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'ethnicity')}
-                                            aria-label="Delete ethnicity attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'ethnicity')}
+                                                aria-label="Delete ethnicity attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.language && churchAttrs.language.length > 0 && (
@@ -719,6 +725,17 @@ const ChurchInfo = () => {
                                         Language: {churchAttrs.language.map(lang =>
                                             lang.charAt(0).toUpperCase() + lang.slice(1)
                                         ).join(', ')}
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'language')}
+                                                aria-label="Delete language attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.denomination && churchAttrs.denomination.length > 0 && (
@@ -728,15 +745,17 @@ const ChurchInfo = () => {
                                                 word.charAt(0).toUpperCase() + word.slice(1)
                                             ).join(' ')
                                         ).join(', ')}
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'language')}
-                                            aria-label="Delete language attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'denomination')}
+                                                aria-label="Delete denomination attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.serviceTime && churchAttrs.serviceTime.length > 0 && (
@@ -744,57 +763,65 @@ const ChurchInfo = () => {
                                         Service Time: {churchAttrs.serviceTime.map(time =>
                                             time.charAt(0).toUpperCase() + time.slice(1)
                                         ).join(', ')}
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'serviceTime')}
-                                            aria-label="Delete serviceTime attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'serviceTime')}
+                                                aria-label="Delete serviceTime attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.serviceNumber && (
                                     <Badge colorScheme="pink" p={2} borderRadius="md">
                                         Services per Week: {churchAttrs.serviceNumber}
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'serviceNumber')}
-                                            aria-label="Delete serviceNumber attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'serviceNumber')}
+                                                aria-label="Delete serviceNumber attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.volunteering && (
                                     <Badge colorScheme="yellow" p={2} borderRadius="md">
                                         Offers Volunteering
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'volunteering')}
-                                            aria-label="Delete volunteering attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'volunteering')}
+                                                aria-label="Delete volunteering attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                                 {churchAttrs.participatory && (
                                     <Badge colorScheme="red" p={2} borderRadius="md">
                                         Participatory Worship
-                                        <IconButton
-                                            icon={<DeleteIcon />}
-                                            size="xs"
-                                            colorScheme="red"
-                                            variant="ghost"
-                                            ml={2}
-                                            onClick={() => handleDeleteAttr(churchAttrs._id, 'participatory')}
-                                            aria-label="Delete participatory attribute"
-                                        />
+                                        {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
+                                            <IconButton
+                                                icon={<DeleteIcon />}
+                                                size="xs"
+                                                colorScheme="red"
+                                                variant="ghost"
+                                                ml={2}
+                                                onClick={() => handleDeleteAttr(churchAttrs._id, 'participatory')}
+                                                aria-label="Delete participatory attribute"
+                                            />
+                                        )}
                                     </Badge>
                                 )}
                             </HStack>
