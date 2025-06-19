@@ -34,7 +34,7 @@ const VolunteerForm = () => {
         if (!churchId) {
             toast({
                 title: 'Error',
-                description: 'Church ID is missing',
+                description: 'Church ID is missing.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -59,7 +59,7 @@ const VolunteerForm = () => {
         if (!formData.title || !formData.description) {
             toast({
                 title: 'Error',
-                description: 'Please fill in all required fields',
+                description: 'Please fill in all required fields.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -70,7 +70,7 @@ const VolunteerForm = () => {
         if (!formData.churchId) {
             toast({
                 title: 'Error',
-                description: 'Church ID is required',
+                description: 'Church ID is required.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -84,7 +84,7 @@ const VolunteerForm = () => {
             if (result.success) {
                 toast({
                     title: 'Success',
-                    description: 'Volunteer opportunity created successfully',
+                    description: 'Volunteer opportunity created successfully.',
                     status: 'success',
                     duration: 3000,
                     isClosable: true,
@@ -97,7 +97,7 @@ const VolunteerForm = () => {
             console.error('Error submitting form:', error)
             toast({
                 title: 'Error',
-                description: error.message || 'Failed to create volunteer opportunity',
+                description: error.message || 'Failed to create volunteer opportunity.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,

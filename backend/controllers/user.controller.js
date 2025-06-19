@@ -2,6 +2,11 @@ import asyncHandler from "express-async-handler";
 import User from "../models/user.model.js";
 import generateToken from "../utils/generateToken.js";
 import Church from "../models/church.model.js";
+import UserPreference from "../models/userPref.model.js";
+import Review from "../models/review.model.js";
+import SavedChurch from "../models/saved.model.js";
+import ChurchAttribute from "../models/attribute.model.js";
+import VolunteerOpportunity from "../models/volunteer.model.js";
 
 export const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -244,12 +249,25 @@ export const deleteUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(userId).select("-password");
 
   if (user) {
-    // If user is a churchRep, delete all their churches
-    if (user.userType === "churchRep") {
-      // Delete all churches associated with this user
-      await Church.deleteMany({ userId: user._id });
+    if (user.userType === "churchgoer") {
+      // Delete all user preferences
+      await UserPreference.deleteMany({ userId: user._id });
+      // Delete all reviews
+      await Review.deleteMany({ userId: user._id });
+      // Delete all saved churches
+      await SavedChurch.deleteMany({ userId: user._id });
+    } else if (user.userType === "churchRep") {
+      // Find all churches created by this user
+      const churches = await Church.find({ userId: user._id });
+      for (const church of churches) {
+        // Delete all attributes for this church
+        await ChurchAttribute.deleteMany({ churchId: church._id });
+        // Delete all volunteer opportunities for this church
+        await VolunteerOpportunity.deleteMany({ churchId: church._id });
+        // Delete the church itself
+        await Church.findByIdAndDelete(church._id);
+      }
     }
-
     // Delete the user
     await User.findByIdAndDelete(userId);
     res.json({ success: true, message: "User and associated data removed" });

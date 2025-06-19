@@ -41,7 +41,7 @@ const ReviewForm = () => {
             if (!churchId) {
                 toast({
                     title: "Error",
-                    description: "No church selected",
+                    description: "No church selected.",
                     status: "error",
                     duration: 5000,
                     isClosable: true,
@@ -71,7 +71,7 @@ const ReviewForm = () => {
         if (rating === 0) {
             toast({
                 title: "Error",
-                description: "Please select a rating",
+                description: "Please select a rating.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -92,7 +92,7 @@ const ReviewForm = () => {
         if (success) {
             toast({
                 title: "Success",
-                description: isEditing ? "Review updated successfully" : "Review submitted successfully",
+                description: isEditing ? "Review updated successfully." : "Review submitted successfully.",
                 status: "success",
                 duration: 5000,
                 isClosable: true,

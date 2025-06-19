@@ -14,6 +14,7 @@ const Account = () => {
     const [user, setUser] = useState(null)
     const [updatedUser, setUpdatedUser] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
+    const [confirmPassword, setConfirmPassword] = useState("")
 
     const bg = useColorModeValue("white", "gray.800")
     const textColor = useColorModeValue("light" ? "gray.800" : "whiteAlpha.900")
@@ -58,6 +59,16 @@ const Account = () => {
     }
 
     const handleUpdate = async (cid, updatedUser) => {
+        if (updatedUser.password && updatedUser.password !== confirmPassword) {
+            toast({
+                title: "Error",
+                description: "Passwords do not match.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            })
+            return
+        }
         const { success, message } = await updateUser(cid, updatedUser)
         onUpdateClose()
 
@@ -72,7 +83,7 @@ const Account = () => {
         } else {
             toast({
                 title: "Success",
-                description: "User updated successfully",
+                description: "User updated successfully.",
                 status: "success",
                 duration: 5000,
                 isClosable: true,
@@ -119,7 +130,7 @@ const Account = () => {
             if (success) {
                 toast({
                     title: "Success",
-                    description: "Preferences deleted successfully",
+                    description: "Preference(s) deleted successfully.",
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -161,7 +172,7 @@ const Account = () => {
                 if (success) {
                     toast({
                         title: "Success",
-                        description: "All preferences removed successfully",
+                        description: "All preferences removed successfully.",
                         status: "success",
                         duration: 3000,
                         isClosable: true,
@@ -181,7 +192,7 @@ const Account = () => {
                 if (success) {
                     toast({
                         title: "Success",
-                        description: `${field} preference removed successfully`,
+                        description: `${field} preference removed successfully.`,
                         status: "success",
                         duration: 3000,
                         isClosable: true,
@@ -204,7 +215,7 @@ const Account = () => {
         if (success) {
             toast({
                 title: "Success",
-                description: "All preferences deleted successfully",
+                description: "All preferences deleted successfully.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -517,6 +528,13 @@ const Account = () => {
                                     type='password'
                                     value={updatedUser?.password || ''}
                                     onChange={(e) => setUpdatedUser({ ...updatedUser, password: e.target.value })}
+                                />
+                                <Input
+                                    placeholder='Confirm Password'
+                                    name='confirmPassword'
+                                    type='password'
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
                             </VStack>
 

@@ -55,7 +55,7 @@ const UserReviews = () => {
         if (success) {
             toast({
                 title: "Success",
-                description: "Review deleted successfully",
+                description: "Review deleted successfully.",
                 status: "success",
                 duration: 5000,
                 isClosable: true,

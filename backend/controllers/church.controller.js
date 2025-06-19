@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import Church from "../models/church.model.js";
 import User from "../models/user.model.js";
+import ChurchAttribute from "../models/attribute.model.js";
+import VolunteerOpportunity from "../models/volunteer.model.js";
+import Review from "../models/review.model.js";
+import Saved from "../models/saved.model.js";
 
 export const getChurches = async (req, res) => {
   try {
@@ -190,6 +194,14 @@ export const deleteChurch = async (req, res) => {
       });
     }
 
+    // Delete all attributes for this church
+    await ChurchAttribute.deleteMany({ churchId: church._id });
+    // Delete all volunteer opportunities for this church
+    await VolunteerOpportunity.deleteMany({ churchId: church._id });
+
+    await Review.deleteMany({ churchId: church._id });
+    await Saved.deleteMany({ churchId: church._id });
+    // Delete the church itself
     await Church.findByIdAndDelete(id);
 
     // Remove the church from the user's churches array

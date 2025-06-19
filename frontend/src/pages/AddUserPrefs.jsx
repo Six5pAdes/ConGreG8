@@ -105,7 +105,7 @@ const AddUserPrefs = () => {
                 if (success) {
                     toast({
                         title: "Success",
-                        description: "Preferences updated successfully",
+                        description: "Preferences updated successfully.",
                         status: "success",
                         duration: 3000,
                         isClosable: true,
@@ -126,7 +126,7 @@ const AddUserPrefs = () => {
                 if (success) {
                     toast({
                         title: "Success",
-                        description: "Preferences saved successfully",
+                        description: "Preferences saved successfully.",
                         status: "success",
                         duration: 3000,
                         isClosable: true,
@@ -147,7 +147,7 @@ const AddUserPrefs = () => {
             console.error("Error in handleSubmit:", error)
             toast({
                 title: "Error",
-                description: "An error occurred while saving preferences",
+                description: "An error occurred while saving preferences.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,

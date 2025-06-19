@@ -13,6 +13,7 @@ const Signup = () => {
         email: "",
         password: "",
     })
+    const [confirmPassword, setConfirmPassword] = useState("")
     const [userType, setUserType] = useState("")
     const toast = useToast()
     const navigate = useNavigate()
@@ -20,23 +21,39 @@ const Signup = () => {
     const isFormValid = () => {
         return (
             newUser.userType !== "" &&
-            (newUser.userType === "churchgoer") &&
-            (newUser.firstName.trim() !== "" &&
-                newUser.lastName.trim() !== "" &&
-                newUser.username.trim() !== "" &&
-                newUser.email.trim() !== "" &&
-                newUser.password.trim() !== ""
+            ((newUser.userType === "churchgoer") &&
+                (newUser.firstName.trim() !== "" &&
+                    newUser.lastName.trim() !== "" &&
+                    newUser.username.trim() !== "" &&
+                    newUser.email.trim() !== "" &&
+                    newUser.password.trim() !== "" &&
+                    confirmPassword.trim() !== "" &&
+                    newUser.password === confirmPassword
+                )
             ) ||
-            (newUser.userType === "churchRep") &&
-            (newUser.churchName.trim() !== "" &&
-                newUser.email.trim() !== "" &&
-                newUser.password.trim() !== "")
+            ((newUser.userType === "churchRep") &&
+                (newUser.churchName.trim() !== "" &&
+                    newUser.email.trim() !== "" &&
+                    newUser.password.trim() !== "" &&
+                    confirmPassword.trim() !== "" &&
+                    newUser.password === confirmPassword
+                )
+            )
         )
     }
 
     const { createUser } = useUserStore()
 
     const handleAddUser = async () => {
+        if (newUser.password !== confirmPassword) {
+            toast({
+                title: "Error",
+                description: "Passwords do not match.",
+                status: "error",
+                isClosable: true,
+            })
+            return
+        }
         const { success, message } = await createUser(newUser)
 
         if (!success) {
@@ -71,6 +88,7 @@ const Signup = () => {
             email: "",
             password: "",
         })
+        setConfirmPassword("")
         setUserType("")
     }
 
@@ -166,6 +184,16 @@ const Signup = () => {
                             value={newUser.password}
                             onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
                             placeholder="Enter your password"
+                        />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <Input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm your password"
                         />
                     </FormControl>
 

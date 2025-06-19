@@ -18,6 +18,7 @@ export const useUserStore = create(
         });
         const data = await res.json();
         if (!data.success) return { success: false, message: data.message };
+        set({ currentUser: data.data });
         return { success: true, data: data.data };
       },
 

@@ -98,7 +98,7 @@ const AddChurchAttrs = () => {
             if (success) {
                 toast({
                     title: "Success",
-                    description: "Attributes updated successfully",
+                    description: "Attributes updated successfully.",
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -118,7 +118,7 @@ const AddChurchAttrs = () => {
             if (success) {
                 toast({
                     title: "Success",
-                    description: "Attributes saved successfully",
+                    description: "Attributes saved successfully.",
                     status: "success",
                     duration: 3000,
                     isClosable: true,

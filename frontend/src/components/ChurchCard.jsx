@@ -84,7 +84,7 @@ const ChurchCard = ({ church }) => {
         } else {
             toast({
                 title: "Success",
-                description: "Church updated successfully",
+                description: "Church updated successfully.",
                 status: "success",
                 duration: 5000,
                 isClosable: true,
