@@ -29,21 +29,11 @@ const Account = () => {
             if (success) {
                 setUser(data)
                 setUpdatedUser(data)
-                // Fetch user preferences if user is a churchgoer
-                if (data.userType === "churchgoer") {
-                    console.log("Fetching preferences for user:", data._id)
-                    const { success: prefSuccess, data: prefData } = await fetchSingleUserPref(data._id)
-                    console.log("Preferences fetch result:", { prefSuccess, prefData })
-                }
+                fetchSingleUserPref(data._id)
             }
         }
         loadUser()
     }, [userId, fetchUser, fetchSingleUserPref])
-
-    // Add a debug effect to monitor userPrefs state
-    useEffect(() => {
-        console.log("Current userPrefs state:", currentUserPrefs)
-    }, [currentUserPrefs])
 
     const handleDelete = async (uid) => {
         const { success, message } = await deleteUser(uid)
@@ -152,45 +142,69 @@ const Account = () => {
                 updatedPrefs[field] = null
             }
 
-            const { success, message } = await updateUserPref(prefId, updatedPrefs)
-            if (success) {
-                toast({
-                    title: "Success",
-                    description: `${field} preference removed successfully`,
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
-                })
+            // Check if all preferences are now empty/null
+            const hasAnyPreferences = (
+                (updatedPrefs.size && updatedPrefs.size.length > 0) ||
+                (updatedPrefs.ageGroup && updatedPrefs.ageGroup.length > 0) ||
+                (updatedPrefs.ethnicity && updatedPrefs.ethnicity.length > 0) ||
+                (updatedPrefs.language && updatedPrefs.language.length > 0) ||
+                (updatedPrefs.denomination && updatedPrefs.denomination.length > 0) ||
+                (updatedPrefs.serviceTime && updatedPrefs.serviceTime.length > 0) ||
+                (updatedPrefs.serviceNumber && updatedPrefs.serviceNumber > 0) ||
+                updatedPrefs.volunteering ||
+                updatedPrefs.participatory
+            )
+
+            if (!hasAnyPreferences) {
+                // If no preferences remain, delete the entire document
+                const { success, message } = await deleteUserPref(prefId)
+                if (success) {
+                    toast({
+                        title: "Success",
+                        description: "All preferences removed successfully",
+                        status: "success",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                } else {
+                    toast({
+                        title: "Error",
+                        description: message,
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                }
             } else {
-                toast({
-                    title: "Error",
-                    description: message,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
-                })
+                // Update the document with the remaining preferences
+                const { success, message } = await updateUserPref(prefId, updatedPrefs)
+                if (success) {
+                    toast({
+                        title: "Success",
+                        description: `${field} preference removed successfully`,
+                        status: "success",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                } else {
+                    toast({
+                        title: "Error",
+                        description: message,
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                }
             }
         }
     }
 
     const handleClearAllPrefs = async (prefId) => {
-        const clearedPrefs = {
-            size: [],
-            ageGroup: [],
-            ethnicity: [],
-            language: [],
-            denomination: [],
-            volunteering: false,
-            serviceTime: [],
-            serviceNumber: null,
-            participatory: false
-        }
-
-        const { success, message } = await updateUserPref(prefId, clearedPrefs)
+        const { success, message } = await deleteUserPref(prefId)
         if (success) {
             toast({
                 title: "Success",
-                description: "All preferences cleared successfully",
+                description: "All preferences deleted successfully",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -428,30 +442,20 @@ const Account = () => {
                                     )}
                                 </HStack>
                             )}
-                            {(!currentUserPrefs || (
-                                (!currentUserPrefs.size || currentUserPrefs.size.length === 0) &&
-                                (!currentUserPrefs.ageGroup || currentUserPrefs.ageGroup.length === 0) &&
-                                (!currentUserPrefs.ethnicity || currentUserPrefs.ethnicity.length === 0) &&
-                                (!currentUserPrefs.language || currentUserPrefs.language.length === 0) &&
-                                (!currentUserPrefs.denomination || currentUserPrefs.denomination.length === 0) &&
-                                (!currentUserPrefs.serviceTime || currentUserPrefs.serviceTime.length === 0) &&
-                                (!currentUserPrefs.serviceNumber || currentUserPrefs.serviceNumber === 0) &&
-                                !currentUserPrefs.volunteering &&
-                                !currentUserPrefs.participatory
-                            )) && (
-                                    <>
-                                        <Text textAlign="center">No preferences set yet</Text>
-                                        <Box display="flex" justifyContent="center" mt={4}>
-                                            <Button
-                                                onClick={() => navigate("/add-user-preferences")}
-                                                size="sm"
-                                                colorScheme='purple'
-                                            >
-                                                Set User Preferences
-                                            </Button>
-                                        </Box>
-                                    </>
-                                )}
+                            {!currentUserPrefs && (
+                                <>
+                                    <Text textAlign="center">No preferences set yet</Text>
+                                    <Box display="flex" justifyContent="center" mt={4}>
+                                        <Button
+                                            onClick={() => navigate("/add-user-preferences")}
+                                            size="sm"
+                                            colorScheme='purple'
+                                        >
+                                            Set User Preferences
+                                        </Button>
+                                    </Box>
+                                </>
+                            )}
                         </VStack>
                     </Box>
                 )}

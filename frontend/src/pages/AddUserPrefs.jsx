@@ -84,9 +84,6 @@ const AddUserPrefs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log("Form submitted")
-        console.log("Current user:", currentUser)
-        console.log("Original preferences:", preferences)
 
         // Format the preferences properly
         const formattedPrefs = {
@@ -102,13 +99,9 @@ const AddUserPrefs = () => {
             participatory: preferences.participatory || false
         }
 
-        console.log("Formatted preferences being sent:", formattedPrefs)
-
         try {
             if (existingPrefs) {
-                console.log("Updating existing preferences:", existingPrefs._id)
                 const { success, message } = await updateUserPref(existingPrefs._id, formattedPrefs)
-                console.log("Update response:", { success, message })
                 if (success) {
                     toast({
                         title: "Success",
@@ -129,9 +122,7 @@ const AddUserPrefs = () => {
                     })
                 }
             } else {
-                console.log("Creating new preferences")
                 const { success, message } = await createUserPref(formattedPrefs)
-                console.log("Create response:", { success, message })
                 if (success) {
                     toast({
                         title: "Success",
@@ -170,13 +161,11 @@ const AddUserPrefs = () => {
 
     // Add logging for preference changes
     const handlePreferenceChange = (name, value) => {
-        console.log(`Changing ${name} to:`, value)
         setPreferences(prev => {
             const newPrefs = {
                 ...prev,
                 [name]: value
             }
-            console.log("New preferences state:", newPrefs)
             return newPrefs
         })
     }

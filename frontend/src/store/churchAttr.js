@@ -119,7 +119,7 @@ export const useChurchAttrStore = create((set) => ({
       if (!data.success) throw new Error(data.message);
 
       set((state) => ({
-        churchAttrs: state.userPrefs.filter(
+        churchAttrs: state.churchAttrs.filter(
           (churchAttr) => churchAttr._id !== caid
         ),
         currentChurchAttrs: null,

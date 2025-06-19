@@ -61,6 +61,13 @@ export const useUserPrefStore = create((set) => ({
       set({ isLoading: true, error: null });
       const res = await fetch(`/api/user-prefs/${upid}`);
       const data = await res.json();
+
+      // If user has no preferences, set currentUserPrefs to null
+      if (!data.success && data.message === "User Preference not found") {
+        set({ currentUserPrefs: null });
+        return { success: true, data: null };
+      }
+
       if (!data.success) throw new Error(data.message);
       set({ currentUserPrefs: data.data });
       return { success: true, data: data.data };
