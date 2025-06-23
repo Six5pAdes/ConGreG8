@@ -6,9 +6,11 @@ import { useUserStore } from './store/user';
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import AddUserPrefs from "./pages/AddUserPrefs";
+import AddChurchAttrs from "./pages/AddChurchAttrs";
 
-import CreateChurch from "./pages/CreateChurch";
 import ChurchInfo from "./pages/ChurchInfo";
+import CreateChurch from "./pages/CreateChurch";
 import ReviewForm from "./pages/ReviewForm";
 import VolunteerForm from "./components/VolunteerForm";
 
@@ -18,8 +20,8 @@ import Saved from './pages/Saved'
 
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
-import AddUserPrefs from "./pages/AddUserPrefs";
-import AddChurchAttrs from "./pages/AddChurchAttrs";
+import About from "./pages/About"
+import Features from './pages/Features'
 
 function App() {
   const { currentUser } = useUserStore();
@@ -67,6 +69,9 @@ function App() {
         <Route path="/profile/:userId" element={<Account />} />
         <Route path="/profile/:userId/reviews" element={<UserReviews />} />
         <Route path="/profile/:userId/saved" element={<Saved />} />
+
+        <Route path="/about" element={<About />} />
+        <Route path="/features" element={<Features />} />
       </Routes>
       <Footer />
     </Box>

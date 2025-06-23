@@ -1,35 +1,19 @@
 import React from 'react'
 import { Box, Container, Grid, GridItem, Heading, Text, Link, Flex, Icon } from '@chakra-ui/react'
-import { FaGithub, FaLinkedin, FaLink } from 'react-icons/fa'
+import Connect from "./Connect"
+import { useState } from 'react'
 
 const Footer = () => {
     const currentYear = new Date().getFullYear()
+    const [isConnectOpen, setConnectOpen] = useState(false)
 
     return (
-        <Container maxW="container.xl" px={4} borderTop={"1px solid gray"}
+        <Container maxW="container.xl" px={4} borderTop={"1px solid gray"} marginTop={8}
         >
-            <Heading
-                as="h3"
-                fontSize="xl"
-                fontWeight="bold"
-                mb={4}
-                bgGradient="linear(to-r, cyan.400, blue.500)"
-                bgClip="text"
-                textAlign="center"
-                paddingTop={"20px"}
-            >
-                ConGreG8
-            </Heading>
-            <Text
-                color="gray.300"
-                textAlign="center"
-                paddingBottom={"40px"}
-            >
-                Making the search for a new church simple and efficient.
-            </Text>
             <Grid
-                templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+                templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
                 gap={8}
+                paddingTop={8}
             >
                 {/* Quick Links */}
                 <GridItem>
@@ -44,9 +28,9 @@ const Footer = () => {
                         Quick Links
                     </Heading>
                     <Flex direction="column" gap={2}>
-                        <Link href="#" color="gray.300" _hover={{ color: "white" }}>About Us</Link>
-                        <Link href="#" color="gray.300" _hover={{ color: "white" }}>Features</Link>
-                        <Link href="#" color="gray.300" _hover={{ color: "white" }}>Contact</Link>
+                        <Link href="/about" color="gray.300" _hover={{ color: "white" }}>About Us</Link>
+                        <Link href="/features" color="gray.300" _hover={{ color: "white" }}>Features</Link>
+                        <Link color="gray.300" _hover={{ color: "white" }} onClick={e => { e.preventDefault(); setConnectOpen(true); }}>Contact</Link>
                     </Flex>
                 </GridItem>
 
@@ -68,34 +52,10 @@ const Footer = () => {
                         <Link href="#" color="gray.300" _hover={{ color: "white" }}>FAQ</Link>
                     </Flex>
                 </GridItem>
-
-                {/* Social Media */}
-                <GridItem>
-                    <Heading
-                        as="h3"
-                        fontSize="xl"
-                        fontWeight="bold"
-                        mb={4}
-                        bgGradient="linear(to-r, cyan.400, blue.500)"
-                        bgClip="text"
-                    >
-                        Connect With Us
-                    </Heading>
-                    <Flex gap={4}>
-                        <Link href="https://github.com/Six5pAdes" color="gray.300" _hover={{ color: "white" }} target="_blank" rel="noopener noreferrer">
-                            <Icon as={FaGithub} boxSize={6} />
-                        </Link>
-                        <Link href="https://www.linkedin.com/in/austinhall-6spades/" color="gray.300" _hover={{ color: "white" }} target="_blank" rel="noopener noreferrer">
-                            <Icon as={FaLinkedin} boxSize={6} />
-                        </Link>
-                        <Link href="https://six5pades.github.io/" color="gray.300" _hover={{ color: "white" }} target="_blank" rel="noopener noreferrer">
-                            <Icon as={FaLink} boxSize={6} />
-                        </Link>
-                    </Flex>
-                </GridItem>
             </Grid>
 
             {/* Copyright */}
+            <Connect isOpen={isConnectOpen} onClose={() => setConnectOpen(false)} />
             <Box
                 borderTop="1px"
                 borderColor="gray.700"

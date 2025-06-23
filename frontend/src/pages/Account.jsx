@@ -4,7 +4,7 @@ import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HSt
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { EditIcon, DeleteIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
+import { EditIcon, DeleteIcon } from '@chakra-ui/icons'
 
 const Account = () => {
     const { userId } = useParams()
@@ -13,7 +13,6 @@ const Account = () => {
 
     const [user, setUser] = useState(null)
     const [updatedUser, setUpdatedUser] = useState(null)
-    const [isEditing, setIsEditing] = useState(false)
     const [confirmPassword, setConfirmPassword] = useState("")
 
     const bg = useColorModeValue("white", "gray.800")

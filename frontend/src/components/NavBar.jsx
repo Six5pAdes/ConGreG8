@@ -18,7 +18,7 @@ const NavBar = () => {
     }
 
     return (
-        <Container maxW={"1140px"} px={4} borderBottom={"1px solid gray"}>
+        <Container maxW={"1300px"} px={4} borderBottom={"1px solid gray"}>
             <Flex
                 h={16}
                 alignItems={"center"}
