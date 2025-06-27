@@ -22,6 +22,7 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import About from "./pages/About"
 import Features from './pages/Features'
+import Map from './pages/Map'
 
 function App() {
   const { currentUser } = useUserStore();
@@ -72,6 +73,7 @@ function App() {
 
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<Features />} />
+        <Route path="/map" element={<Map />} />
       </Routes>
       <Footer />
     </Box>

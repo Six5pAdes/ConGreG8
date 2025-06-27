@@ -1,6 +1,6 @@
 import { Button, Container, Flex, HStack, Text, useColorMode, Menu, MenuButton, MenuList, MenuItem, IconButton } from "@chakra-ui/react";
 import { Link } from "react-router-dom"
-import { LuCross, LuSun, LuMoon, LuUser, LuLogIn, LuLogOut } from "react-icons/lu";
+import { LuCross, LuSun, LuMoon, LuUser, LuLogIn, LuLogOut, LuMap } from "react-icons/lu";
 import { useUserStore } from "../store/user";
 import { useNavigate } from "react-router-dom";
 
@@ -44,6 +44,11 @@ const NavBar = () => {
                             </Button>
                         </Link>
                     )}
+                    <Link to={"/map"}>
+                        <Button>
+                            <LuMap fontSize={20} />
+                        </Button>
+                    </Link>
                     <Button onClick={toggleColorMode}>
                         {colorMode === "light" ? <LuMoon /> : <LuSun size="20" />}
                     </Button>
