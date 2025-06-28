@@ -1,7 +1,8 @@
 import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack, HStack, FormControl, FormLabel, Textarea, Select } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
+import { useUserStore } from '../store/user'
 import { US_STATES } from '../../../backend/models/church.model.js'
 
 const CreateChurch = () => {
@@ -19,8 +20,35 @@ const CreateChurch = () => {
     const [selectedFile, setSelectedFile] = useState(null)
 
     const { createChurch } = useChurchStore()
+    const { currentUser } = useUserStore()
     const toast = useToast()
     const navigate = useNavigate()
+
+    // Check if user is authenticated
+    useEffect(() => {
+        if (!currentUser) {
+            toast({
+                title: "Authentication Required",
+                description: "Please log in to create a church.",
+                status: "warning",
+                isClosable: true,
+            })
+            navigate('/login')
+        } else if (currentUser.userType === 'churchgoer') {
+            toast({
+                title: "Access Denied",
+                description: "Only church representatives can create churches.",
+                status: "error",
+                isClosable: true,
+            })
+            navigate('/')
+        }
+    }, [currentUser, navigate, toast])
+
+    // Show loading or redirect if not authenticated
+    if (!currentUser || currentUser.userType === 'churchgoer') {
+        return null
+    }
 
     const isFormValid = () => {
         return (
@@ -128,8 +156,8 @@ const CreateChurch = () => {
                             onChange={(e) => setNewChurch({ ...newChurch, state: e.target.value })}
                         >
                             {Object.entries(US_STATES).map(([abbr, name]) => (
-                                <option key={abbr} value={abbr}>
-                                    {abbr} - {name}
+                                <option key={abbr} value={name}>
+                                    {name}
                                 </option>
                             ))}
                         </Select>

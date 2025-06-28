@@ -7,6 +7,7 @@ import {
     IconButton,
     Image,
     Input,
+    Select,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -25,6 +26,7 @@ import { useChurchStore } from "../store/church";
 import { useUserStore } from "../store/user";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { US_STATES } from '../../../backend/models/church.model.js'
 
 const ChurchCard = ({ church }) => {
     const textColor = useColorModeValue("light" ? "gray.800" : "whiteAlpha.900");
@@ -168,12 +170,18 @@ const ChurchCard = ({ church }) => {
                                 value={updatedChurch.city}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, city: e.target.value })}
                             />
-                            <Input
-                                placeholder='Church State'
+                            <Select
+                                placeholder='Select state'
                                 name='state'
                                 value={updatedChurch.state}
                                 onChange={(e) => setUpdatedChurch({ ...updatedChurch, state: e.target.value })}
-                            />
+                            >
+                                {Object.entries(US_STATES).map(([abbr, name]) => (
+                                    <option key={abbr} value={name}>
+                                        {name}
+                                    </option>
+                                ))}
+                            </Select>
                             <Textarea
                                 placeholder='Church Description'
                                 name='description'

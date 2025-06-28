@@ -12,7 +12,7 @@ export const useChurchStore = create((set) => ({
       !newChurch.state ||
       !newChurch.email ||
       !newChurch.website ||
-      !newChurch.image
+      (!newChurch.image && !newChurch.imageFile)
     ) {
       return {
         success: false,
@@ -20,16 +20,53 @@ export const useChurchStore = create((set) => ({
       };
     }
 
+    // If there's a file, convert it to a data URL
+    let churchData = { ...newChurch };
+    if (newChurch.imageFile) {
+      try {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(newChurch.imageFile);
+        });
+        churchData.image = dataUrl;
+        delete churchData.imageFile; // Remove the file object
+      } catch (error) {
+        return {
+          success: false,
+          message: "Error processing image file.",
+        };
+      }
+    }
+
     const res = await fetch("/api/churches", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-
-      body: JSON.stringify(newChurch),
+      credentials: "include",
+      body: JSON.stringify(churchData),
     });
 
+    if (!res.ok) {
+      const errorData = await res
+        .json()
+        .catch(() => ({ message: "Server error" }));
+      return {
+        success: false,
+        message: errorData.message || `HTTP error! status: ${res.status}`,
+      };
+    }
+
     const data = await res.json();
+    if (!data.success) {
+      return {
+        success: false,
+        message: data.message || "Failed to create church",
+      };
+    }
+
     set((state) => ({ churches: [...state.churches, data.data] }));
     return { success: true, message: "Successfully created.", data: data.data };
   },

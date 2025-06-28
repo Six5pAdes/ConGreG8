@@ -65,8 +65,7 @@ const churchSchema = new mongoose.Schema(
     state: {
       type: String,
       required: true,
-      enum: Object.keys(US_STATES),
-      uppercase: true,
+      enum: Object.values(US_STATES),
     },
     description: { type: String },
     phone: { type: String },

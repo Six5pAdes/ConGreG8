@@ -579,8 +579,8 @@ const ChurchInfo = () => {
                                     onChange={(e) => setUpdatedChurch({ ...updatedChurch, state: e.target.value })}
                                 >
                                     {Object.entries(US_STATES).map(([abbr, name]) => (
-                                        <option key={abbr} value={abbr}>
-                                            {abbr} - {name}
+                                        <option key={abbr} value={name}>
+                                            {name}
                                         </option>
                                     ))}
                                 </Select>
