@@ -7,9 +7,12 @@ export const useChurchStore = create((set) => ({
   createChurch: async (newChurch) => {
     if (
       !newChurch.name ||
+      newChurch.latitude === undefined ||
+      newChurch.longitude === undefined ||
       !newChurch.address ||
       !newChurch.city ||
       !newChurch.state ||
+      !newChurch.zipcode ||
       !newChurch.email ||
       !newChurch.website ||
       (!newChurch.image && !newChurch.imageFile)

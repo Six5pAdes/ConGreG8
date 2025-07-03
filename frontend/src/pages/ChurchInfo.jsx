@@ -17,6 +17,7 @@ import {
 
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import axios from 'axios'
 
 import { useChurchStore } from '../store/church'
 import { useUserStore } from "../store/user"
@@ -211,10 +212,39 @@ const ChurchInfo = () => {
         }
     }
 
-    const handleUpdate = async (cid, updatedChurch) => {
-        const { success, message } = await updateChurch(cid, updatedChurch)
+    const handleUpdate = async (cid, updatedChurchData) => {
+        // Check if address, city, or state changed
+        const addressChanged =
+            updatedChurchData.address !== church.address ||
+            updatedChurchData.city !== church.city ||
+            updatedChurchData.state !== church.state;
+        let churchToUpdate = { ...updatedChurchData };
+        if (addressChanged) {
+            const geoRes = await axios.post('/api/churches/geocode', {
+                address: updatedChurchData.address,
+                city: updatedChurchData.city,
+                state: updatedChurchData.state,
+                zip: updatedChurchData.zipcode
+            });
+            if (geoRes.data && geoRes.data.success) {
+                churchToUpdate.latitude = geoRes.data.latitude;
+                churchToUpdate.longitude = geoRes.data.longitude;
+            } else {
+                toast({
+                    title: "Geocoding Error",
+                    description: "Could not determine location from address. Please check the address and try again.",
+                    status: "error",
+                    isClosable: true,
+                });
+                return;
+            }
+        } else {
+            // Ensure lat/lng are included if address didn't change
+            churchToUpdate.latitude = church.latitude;
+            churchToUpdate.longitude = church.longitude;
+        }
+        const { success, message } = await updateChurch(cid, churchToUpdate)
         onUpdateClose()
-
         if (!success) {
             toast({
                 title: "Error",
@@ -231,10 +261,10 @@ const ChurchInfo = () => {
                 duration: 5000,
                 isClosable: true,
             })
-            const { success: fetchSuccess, data } = await fetchChurch(churchId)
+            const { success: fetchSuccess, data } = await fetchChurch(cid);
             if (fetchSuccess) {
-                setChurch(data)
-                setUpdatedChurch(data)
+                setChurch(data);
+                setUpdatedChurch(data);
             }
         }
     }
@@ -500,7 +530,7 @@ const ChurchInfo = () => {
                                     Location
                                 </Text>
                                 <Text>
-                                    {church.address}, {church.city}, {church.state}
+                                    {church.address}, {church.city}, {church.state} {church.zipcode}
                                 </Text>
                             </Box>
 
@@ -584,6 +614,12 @@ const ChurchInfo = () => {
                                         </option>
                                     ))}
                                 </Select>
+                                <Input
+                                    placeholder='Church Zipcode'
+                                    name='zipcode'
+                                    value={updatedChurch?.zipcode || ''}
+                                    onChange={(e) => setUpdatedChurch({ ...updatedChurch, zipcode: e.target.value })}
+                                />
                                 <Textarea
                                     placeholder='Church Description'
                                     name='description'

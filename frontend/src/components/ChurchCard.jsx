@@ -27,6 +27,7 @@ import { useUserStore } from "../store/user";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { US_STATES } from '../../../backend/models/church.model.js'
+import axios from 'axios';
 
 const ChurchCard = ({ church }) => {
     const textColor = useColorModeValue("light" ? "gray.800" : "whiteAlpha.900");
@@ -71,10 +72,48 @@ const ChurchCard = ({ church }) => {
         }
     }
 
-    const handleUpdate = async (cid, updatedChurch) => {
-        const { success, message } = await updateChurch(cid, updatedChurch)
+    const handleUpdate = async (cid, updatedChurchData) => {
+        // Check if address, city, or state changed
+        const addressChanged =
+            updatedChurchData.address !== church.address ||
+            updatedChurchData.city !== church.city ||
+            updatedChurchData.state !== church.state;
+        let churchToUpdate = { ...updatedChurchData };
+        if (addressChanged) {
+            // Geocode new address
+            const addressString = `${updatedChurchData.address}, ${updatedChurchData.city}, ${updatedChurchData.state}`;
+            try {
+                const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                    params: {
+                        q: addressString,
+                        format: 'json',
+                        limit: 1
+                    }
+                });
+                if (response.data && response.data.length > 0) {
+                    churchToUpdate.latitude = parseFloat(response.data[0].lat);
+                    churchToUpdate.longitude = parseFloat(response.data[0].lon);
+                } else {
+                    toast({
+                        title: "Geocoding Error",
+                        description: "Could not determine location from address. Please check the address and try again.",
+                        status: "error",
+                        isClosable: true,
+                    });
+                    return;
+                }
+            } catch (error) {
+                toast({
+                    title: "Geocoding Error",
+                    description: "Could not determine location from address. Please check the address and try again.",
+                    status: "error",
+                    isClosable: true,
+                });
+                return;
+            }
+        }
+        const { success, message } = await updateChurch(cid, churchToUpdate)
         onUpdateClose()
-
         if (!success) {
             toast({
                 title: "Error",
@@ -118,7 +157,7 @@ const ChurchCard = ({ church }) => {
                     {church.name}
                 </Heading>
                 <Text mb={2}>
-                    {church.address}, {church.city}, {church.state}
+                    {church.address}, {church.city}, {church.state} {church.zipcode}
                 </Text>
                 {currentUser && currentUser.userType === "churchRep" && currentUser._id === church.userId && (
                     <HStack spacing={2} mt={2}>
@@ -182,6 +221,12 @@ const ChurchCard = ({ church }) => {
                                     </option>
                                 ))}
                             </Select>
+                            <Input
+                                placeholder='Church Zipcode'
+                                name='zipcode'
+                                value={updatedChurch?.zipcode || ''}
+                                onChange={(e) => setUpdatedChurch({ ...updatedChurch, zipcode: e.target.value })}
+                            />
                             <Textarea
                                 placeholder='Church Description'
                                 name='description'

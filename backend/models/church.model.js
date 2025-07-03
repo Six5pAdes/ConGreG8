@@ -60,6 +60,8 @@ const churchSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    latitude: { type: Number },
+    longitude: { type: Number },
     address: { type: String, required: true },
     city: { type: String, required: true },
     state: {
@@ -67,6 +69,7 @@ const churchSchema = new mongoose.Schema(
       required: true,
       enum: Object.values(US_STATES),
     },
+    zipcode: { type: Number, required: true },
     description: { type: String },
     phone: { type: String },
     email: { type: String, required: true },

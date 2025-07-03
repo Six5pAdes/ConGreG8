@@ -26,30 +26,13 @@ const Map = () => {
                 const res = await axios.get('/api/churches');
                 const data = res.data;
                 if (!data.success) throw new Error('Failed to fetch churches');
-                const churchesWithCoords = await Promise.all(
-                    data.data.map(async (church) => {
-                        const address = `${church.address}, ${church.city}, ${church.state}`;
-                        const geoRes = await axios.get(
-                            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
-                        );
-                        const geoData = geoRes.data;
-                        if (
-                            geoData.status === 'OK' &&
-                            geoData.results &&
-                            geoData.results[0] &&
-                            geoData.results[0].geometry
-                        ) {
-                            return {
-                                ...church,
-                                lat: geoData.results[0].geometry.location.lat,
-                                lng: geoData.results[0].geometry.location.lng,
-                            };
-                        } else {
-                            return null; // skip if geocoding fails
-                        }
-                    })
+                const filteredChurches = data.data.filter(
+                    (church) =>
+                        typeof church.latitude === "number" &&
+                        typeof church.longitude === "number"
                 );
-                setChurches(churchesWithCoords.filter(Boolean));
+                setChurches(filteredChurches);
+                console.log('Churches for map:', filteredChurches);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -74,13 +57,17 @@ const Map = () => {
                     <LoadScript googleMapsApiKey={apiKey}>
                         <GoogleMap
                             mapContainerStyle={containerStyle}
-                            center={churches[0] ? { lat: churches[0].lat, lng: churches[0].lng } : defaultCenter}
+                            center={
+                                churches[0]
+                                    ? { lat: churches[0].latitude, lng: churches[0].longitude }
+                                    : defaultCenter
+                            }
                             zoom={churches[0] ? 10 : 12}
                         >
                             {churches.map((church) => (
                                 <Marker
                                     key={church._id}
-                                    position={{ lat: church.lat, lng: church.lng }}
+                                    position={{ lat: church.latitude, lng: church.longitude }}
                                     title={church.name}
                                 />
                             ))}

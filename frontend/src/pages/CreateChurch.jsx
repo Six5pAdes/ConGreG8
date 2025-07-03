@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useChurchStore } from '../store/church'
 import { useUserStore } from '../store/user'
 import { US_STATES } from '../../../backend/models/church.model.js'
+import axios from 'axios'
 
 const CreateChurch = () => {
     const [newChurch, setNewChurch] = useState({
@@ -11,6 +12,7 @@ const CreateChurch = () => {
         address: "",
         city: "",
         state: "",
+        zipcode: "",
         description: "",
         phone: "",
         email: "",
@@ -56,6 +58,7 @@ const CreateChurch = () => {
             newChurch.address.trim() !== "" &&
             newChurch.city.trim() !== "" &&
             newChurch.state.trim() !== "" &&
+            newChurch.zipcode.trim() !== "" &&
             newChurch.email.trim() !== "" &&
             newChurch.website.trim() !== "" &&
             (newChurch.image.trim() !== "" || selectedFile !== null)
@@ -72,43 +75,73 @@ const CreateChurch = () => {
     }
 
     const handleAddChurch = async () => {
+        // Use backend geocoding endpoint
+        let latitude = null;
+        let longitude = null;
+        try {
+            const geoRes = await axios.post('/api/churches/geocode', {
+                address: newChurch.address,
+                city: newChurch.city,
+                state: newChurch.state,
+                zip: newChurch.zipcode
+            });
+            if (geoRes.data && geoRes.data.success) {
+                latitude = geoRes.data.latitude;
+                longitude = geoRes.data.longitude;
+            } else {
+                throw new Error("Address not found");
+            }
+        } catch (error) {
+            toast({
+                title: "Geocoding Error",
+                description: "Could not determine location from address. Please check address and try again.",
+                status: "error",
+                isClosable: true
+            });
+            return;
+        }
+
         /* If there's a selected file, you'll need to handle file upload here
         This would typically involve uploading to a storage service first
         For now, we'll just use the URL if no file is selected */
-        const churchData = selectedFile
-            ? { ...newChurch, imageFile: selectedFile }
-            : newChurch
+        const churchData = {
+            ...newChurch,
+            latitude,
+            longitude,
+            imageFile: selectedFile || undefined
+        };
 
-        const { success, message, data } = await createChurch(churchData)
+        const { success, message, data } = await createChurch(churchData);
         if (!success) {
             toast({
                 title: "Error",
                 description: message,
                 status: "error",
                 isClosable: true,
-            })
+            });
         } else {
             toast({
                 title: "Success",
                 description: message,
                 status: "success",
                 isClosable: true,
-            })
+            });
             setNewChurch({
                 name: "",
                 address: "",
                 city: "",
                 state: "",
+                zipcode: "",
                 description: "",
                 phone: "",
                 email: "",
                 website: "",
                 image: ""
-            })
-            setSelectedFile(null)
-            navigate(`/add-church-attributes/${data._id}`)
+            });
+            setSelectedFile(null);
+            navigate(`/add-church-attributes/${data._id}`);
         }
-    }
+    };
 
     return <Container maxW={"container.sm"}>
         <VStack spacing={8} py={8}>
@@ -161,6 +194,15 @@ const CreateChurch = () => {
                                 </option>
                             ))}
                         </Select>
+                    </FormControl>
+                    <FormControl isRequired>
+                        <FormLabel>Church Zipcode</FormLabel>
+                        <Input
+                            placeholder='Church Zipcode'
+                            name='zipcode'
+                            value={newChurch.zipcode}
+                            onChange={(e) => setNewChurch({ ...newChurch, zipcode: e.target.value })}
+                        />
                     </FormControl>
                     <FormControl >
                         <FormLabel>Church Description</FormLabel>

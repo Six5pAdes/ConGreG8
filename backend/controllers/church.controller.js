@@ -52,9 +52,12 @@ export const createChurch = async (req, res) => {
 
   if (
     !church.name ||
+    church.latitude === undefined ||
+    church.longitude === undefined ||
     !church.address ||
     !church.city ||
     !church.state ||
+    !church.zipcode ||
     !church.email ||
     !church.website ||
     !church.image
@@ -135,9 +138,12 @@ export const updateChurch = async (req, res) => {
 
   if (
     !church.name ||
+    church.latitude === undefined ||
+    church.longitude === undefined ||
     !church.address ||
     !church.city ||
     !church.state ||
+    !church.zipcode ||
     !church.email ||
     !church.website ||
     !church.image
