@@ -83,12 +83,8 @@ const ChurchCard = ({ church }) => {
             // Geocode new address
             const addressString = `${updatedChurchData.address}, ${updatedChurchData.city}, ${updatedChurchData.state}`;
             try {
-                const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-                    params: {
-                        q: addressString,
-                        format: 'json',
-                        limit: 1
-                    }
+                const response = await axios.get('/api/churches/geocode', {
+                    params: { address: addressString }
                 });
                 if (response.data && response.data.length > 0) {
                     churchToUpdate.latitude = parseFloat(response.data[0].lat);
