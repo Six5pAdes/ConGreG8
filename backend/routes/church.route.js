@@ -13,12 +13,6 @@ import {
 const router = express.Router();
 
 router.get("/", getChurches);
-router.get("/:id", getOneChurch);
-router.post("/", protect, createChurch);
-router.put("/:id", protect, updateChurch);
-router.delete("/:id", protect, deleteChurch);
-
-// Geocode endpoint
 router.post("/geocode", async (req, res) => {
   const { address, city, state, zipcode } = req.body;
   if (!address || !city || !state) {
@@ -59,5 +53,9 @@ router.post("/geocode", async (req, res) => {
       .json({ success: false, message: "Geocoding error", error: err.message });
   }
 });
+router.get("/:id", getOneChurch);
+router.post("/", protect, createChurch);
+router.put("/:id", protect, updateChurch);
+router.delete("/:id", protect, deleteChurch);
 
 export default router;

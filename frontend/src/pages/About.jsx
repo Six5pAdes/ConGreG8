@@ -27,9 +27,14 @@ const About = () => {
             </Text>
 
             <Text fontSize={20} textAlign={"right"} paddingLeft={500} paddingRight={20}>
-                Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos. <br />
+                ConGreG8 was built with one mission in mind: to make it easier for people to find
+                a church community that feels like home. Whether you're new to an area or just
+                exploring, we help connect you with churches that match your values and needs. <br />
 
-                Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+                From service times and ministries to values and accessibility, we provide the
+                information you need to make confident decisions. Think of us as your digital
+                compass on your spiritual journey—bringing clarity, connection, and community
+                to your church search.
             </Text>
 
             <Text fontSize={"m"} textAlign={"center"} fontWeight={"medium"} paddingTop={8}>
