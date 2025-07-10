@@ -28,4 +28,8 @@ reviewSchema.pre("findOne", function () {
   this.populate("userId", "firstName lastName");
 });
 
+reviewSchema.pre("findById", function () {
+  this.populate("userId", "firstName lastName");
+});
+
 export default mongoose.model("Review", reviewSchema);

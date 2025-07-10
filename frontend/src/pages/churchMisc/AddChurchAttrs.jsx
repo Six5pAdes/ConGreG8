@@ -20,7 +20,7 @@ import {
     CheckboxGroup,
     Stack
 } from '@chakra-ui/react'
-import { useChurchAttrStore } from '../store/churchAttr'
+import { useChurchAttrStore } from '../../store/churchAttr'
 
 const AddChurchAttrs = () => {
     const navigate = useNavigate()

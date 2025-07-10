@@ -19,16 +19,16 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 
-import { useChurchStore } from '../store/church'
-import { useUserStore } from "../store/user"
-import { useReviewStore } from '../store/review'
-import { useSavedStore } from '../store/saved'
-import { useVolunteerOpStore } from '../store/volunteer'
-import { useChurchAttrStore } from '../store/churchAttr'
+import { useChurchStore } from '../../store/church.js'
+import { useUserStore } from "../../store/user.js"
+import { useReviewStore } from '../../store/review.js'
+import { useSavedStore } from '../../store/saved.js'
+import { useVolunteerOpStore } from '../../store/volunteer.js'
+import { useChurchAttrStore } from '../../store/churchAttr.js'
 
 import { DeleteIcon, EditIcon, AddIcon, StarIcon } from "@chakra-ui/icons"
-import ReviewCard from '../components/ReviewCard'
-import { US_STATES } from '../../../backend/models/church.model.js'
+import ReviewCard from '../../components/ReviewCard.jsx'
+import { US_STATES } from '../../../../backend/models/church.model.js'
 
 const ChurchInfo = () => {
     // All hooks must be declared at the top level
@@ -1053,6 +1053,42 @@ const ChurchInfo = () => {
                             </Button>
                         )}
                     </HStack>
+
+                    {/* Average Rating Subsection */}
+                    {reviews.length > 0 && (
+                        <Box mb={6} p={4} bg={cardBg} borderRadius="lg" borderWidth="1px">
+                            <HStack justify="space-between" align="center">
+                                <VStack align="start" spacing={1}>
+                                    <Text fontWeight="bold" fontSize="lg" color={textColor}>
+                                        Average Rating
+                                    </Text>
+                                    <HStack spacing={2}>
+                                        <Text fontSize="2xl" fontWeight="bold" color="teal.500">
+                                            {(reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)}
+                                        </Text>
+                                        <Text fontSize="sm" color="gray.500">
+                                            out of 5 stars
+                                        </Text>
+                                    </HStack>
+                                    <Text fontSize="sm" color="gray.500">
+                                        Based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                                    </Text>
+                                </VStack>
+                                <HStack spacing={1}>
+                                    {[1, 2, 3, 4, 5].map((star) => {
+                                        const avgRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+                                        return (
+                                            <StarIcon
+                                                key={star}
+                                                color={star <= avgRating ? "yellow.400" : "gray.300"}
+                                                boxSize={6}
+                                            />
+                                        );
+                                    })}
+                                </HStack>
+                            </HStack>
+                        </Box>
+                    )}
 
                     <VStack spacing={4} align="stretch">
                         {reviews.length === 0 ? (

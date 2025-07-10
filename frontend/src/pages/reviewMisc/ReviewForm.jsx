@@ -14,9 +14,9 @@ import {
     useColorModeValue
 } from '@chakra-ui/react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { useReviewStore } from '../store/review'
-import { useChurchStore } from '../store/church'
-import { useUserStore } from '../store/user'
+import { useReviewStore } from '../../store/review'
+import { useChurchStore } from '../../store/church'
+import { useUserStore } from '../../store/user'
 
 const ReviewForm = () => {
     const { reviewId } = useParams()

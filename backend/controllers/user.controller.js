@@ -264,6 +264,10 @@ export const deleteUserProfile = asyncHandler(async (req, res) => {
         await ChurchAttribute.deleteMany({ churchId: church._id });
         // Delete all volunteer opportunities for this church
         await VolunteerOpportunity.deleteMany({ churchId: church._id });
+        // Delete all reviews left by churchgoers on this church
+        await Review.deleteMany({ churchId: church._id });
+        // Remove this church from all churchgoers' saved church lists
+        await SavedChurch.deleteMany({ churchId: church._id });
         // Delete the church itself
         await Church.findByIdAndDelete(church._id);
       }

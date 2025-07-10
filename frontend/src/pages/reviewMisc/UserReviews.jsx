@@ -9,7 +9,6 @@ import {
     useToast,
     Button,
     HStack,
-    IconButton,
     Modal,
     ModalOverlay,
     ModalContent,
@@ -19,10 +18,9 @@ import {
     useDisclosure,
 } from '@chakra-ui/react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useReviewStore } from '../store/review'
-import { useUserStore } from '../store/user'
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
-import ReviewCard from '../components/ReviewCard'
+import { useReviewStore } from '../../store/review'
+import { useUserStore } from '../../store/user'
+import ReviewCard from '../../components/ReviewCard'
 
 const UserReviews = () => {
     const { userId } = useParams()
@@ -89,19 +87,31 @@ const UserReviews = () => {
                         My Reviews
                     </Heading>
 
+                    {reviews.length > 0 && (
+                        <Box mb={6} p={4} bg="teal.50" borderRadius="md" border="1px" borderColor="teal.200">
+                            <Text fontSize="md" color="teal.700">
+                                {reviews.length === 1
+                                    ? `You have written 1 review for 1 church.`
+                                    : `You have written ${reviews.length} reviews for ${new Set(reviews.map(review => review.churchId?.name || review.churchId)).size} different churches.`
+                                }
+                            </Text>
+                        </Box>
+                    )}
+
                     {reviews.length === 0 ? (
                         <Text fontSize="lg" color="gray.500">
                             You haven't written any reviews yet.
                         </Text>
                     ) : (
-                        <VStack spacing={4} align="stretch">
+                        <VStack spacing={6} align="stretch">
                             {reviews.map((review) => (
                                 <Box key={review._id}>
                                     <ReviewCard
                                         review={review}
+                                        showChurchInfo={true}
                                         onEdit={
                                             currentUser && currentUser._id === review.userId._id
-                                                ? () => navigate(`/review-edit/${review._id}?churchId=${review.churchId}`, { state: { from: 'userReview' } })
+                                                ? () => navigate(`/review-edit/${review._id}?churchId=${review.churchId._id || review.churchId}`, { state: { from: 'userReview' } })
                                                 : null
                                         }
                                         onDelete={
@@ -122,7 +132,7 @@ const UserReviews = () => {
                     <ModalContent>
                         <ModalHeader>Confirm Deletion</ModalHeader>
                         <ModalBody>
-                            Are you sure you want to delete this review? This action cannot be undone.
+                            Are you sure you want to delete your review for <strong>{selectedReview?.churchId?.name || 'this church'}</strong>? This action cannot be undone.
                         </ModalBody>
                         <ModalFooter>
                             <HStack spacing={4}>

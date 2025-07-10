@@ -20,8 +20,8 @@ import {
     CheckboxGroup,
     Stack,
 } from '@chakra-ui/react'
-import { useUserPrefStore } from '../store/userPref'
-import { useUserStore } from '../store/user'
+import { useUserPrefStore } from '../../store/userPref'
+import { useUserStore } from '../../store/user'
 
 const AddUserPrefs = () => {
     const { currentUser } = useUserStore()

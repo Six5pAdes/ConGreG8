@@ -5,6 +5,7 @@ export const getReviews = async (req, res) => {
   try {
     const reviews = await Review.find({})
       .populate("userId", "firstName lastName")
+      .populate("churchId", "name address")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
@@ -23,6 +24,7 @@ export const getReviewsByUser = async (req, res) => {
   try {
     const reviews = await Review.find({ userId: id })
       .populate("userId", "firstName lastName")
+      .populate("churchId", "name address")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
@@ -43,6 +45,7 @@ export const getReviewsByChurch = async (req, res) => {
   try {
     const reviews = await Review.find({ churchId: id })
       .populate("userId", "firstName lastName")
+      .populate("churchId", "name address")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
@@ -61,10 +64,9 @@ export const getOneReview = async (req, res) => {
   }
 
   try {
-    const review = await Review.findById(id).populate(
-      "userId",
-      "firstName lastName"
-    );
+    const review = await Review.findById(id)
+      .populate("userId", "firstName lastName")
+      .populate("churchId", "name address");
     if (!review) {
       return res
         .status(404)
@@ -196,10 +198,13 @@ export const deleteReview = async (req, res) => {
         .json({ success: false, message: "Review not found" });
     }
 
-    if (
-      !reviewToDelete.userId ||
-      reviewToDelete.userId.toString() !== req.user._id.toString()
-    ) {
+    // Check if userId is populated (object with _id) or just ObjectId
+    const reviewUserId = reviewToDelete.userId._id
+      ? reviewToDelete.userId._id.toString()
+      : reviewToDelete.userId.toString();
+    const currentUserId = req.user._id.toString();
+
+    if (reviewUserId !== currentUserId) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to delete this review",

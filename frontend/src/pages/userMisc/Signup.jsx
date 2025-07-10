@@ -1,6 +1,6 @@
 import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack, HStack, RadioGroup, Radio, FormControl, FormLabel } from '@chakra-ui/react'
 import { useState } from 'react'
-import { useUserStore } from '../store/user'
+import { useUserStore } from '../../store/user'
 import { useNavigate } from 'react-router-dom'
 
 const Signup = () => {

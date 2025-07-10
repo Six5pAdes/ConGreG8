@@ -1,6 +1,7 @@
 import { Button, Container, Flex, HStack, Text, useColorMode, Menu, MenuButton, MenuList, MenuItem, IconButton } from "@chakra-ui/react";
 import { Link } from "react-router-dom"
 import { LuCross, LuSun, LuMoon, LuUser, LuLogIn, LuLogOut, LuMap } from "react-icons/lu";
+import { FaSignInAlt } from "react-icons/fa"
 import { useUserStore } from "../store/user";
 import { useNavigate } from "react-router-dom";
 
@@ -80,10 +81,16 @@ const NavBar = () => {
                                     </MenuItem>
                                 </>
                             ) : (
-                                <MenuItem as={Link} to="/login">
-                                    <LuLogIn style={{ marginRight: "8px" }} />
-                                    Login
-                                </MenuItem>
+                                <>
+                                    <MenuItem as={Link} to="/login">
+                                        <LuLogIn style={{ marginRight: "8px" }} />
+                                        Login
+                                    </MenuItem>
+                                    <MenuItem as={Link} to="/signup">
+                                        <FaSignInAlt style={{ marginRight: "8px" }} />
+                                        Signup
+                                    </MenuItem>
+                                </>
                             )}
                         </MenuList>
                     </Menu>

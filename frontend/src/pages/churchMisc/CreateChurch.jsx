@@ -1,9 +1,9 @@
 import { Box, Button, Container, Heading, Input, Text, useColorModeValue, useToast, VStack, HStack, FormControl, FormLabel, Textarea, Select } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useChurchStore } from '../store/church'
-import { useUserStore } from '../store/user'
-import { US_STATES } from '../../../backend/models/church.model.js'
+import { useChurchStore } from '../../store/church.js'
+import { useUserStore } from '../../store/user.js'
+import { US_STATES } from '../../../../backend/models/church.model.js'
 import axios from 'axios'
 
 const CreateChurch = () => {

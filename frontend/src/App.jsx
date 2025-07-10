@@ -5,24 +5,24 @@ import { useUserStore } from './store/user';
 import { LoadScript } from '@react-google-maps/api';
 
 import Home from "./pages/Home";
-import Signup from "./pages/Signup";
-import Login from "./pages/Login";
-import AddUserPrefs from "./pages/AddUserPrefs";
-import AddChurchAttrs from "./pages/AddChurchAttrs";
+import Signup from "./pages/userMisc/Signup";
+import Login from "./pages/userMisc/Login";
+import AddUserPrefs from "./pages/userMisc/AddUserPrefs";
+import AddChurchAttrs from "./pages/churchMisc/AddChurchAttrs";
 
-import ChurchInfo from "./pages/ChurchInfo";
-import CreateChurch from "./pages/CreateChurch";
-import ReviewForm from "./pages/ReviewForm";
+import ChurchInfo from "./pages/churchMisc/ChurchInfo";
+import CreateChurch from "./pages/churchMisc/CreateChurch";
+import ReviewForm from "./pages/reviewMisc/ReviewForm";
 import VolunteerForm from "./components/VolunteerForm";
 
-import Account from "./pages/Account";
-import UserReviews from "./pages/UserReviews";
+import Account from "./pages/userMisc/Account";
+import UserReviews from "./pages/reviewMisc/UserReviews";
 import Saved from './pages/Saved'
 
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
-import About from "./pages/About"
-import Features from './pages/Features'
+import About from "./pages/footerPages/About"
+import Features from './pages/footerPages/Features'
 import Map from './pages/Map'
 
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE';

@@ -1,7 +1,7 @@
 import { Box, Button, Container, Heading, Input, useColorModeValue, useToast, VStack, FormControl, FormLabel } from '@chakra-ui/react'
 import { PasswordInput } from "@/components/ui/password-input"
 import { useState } from 'react'
-import { useUserStore } from '../store/user'
+import { useUserStore } from '../../store/user'
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {

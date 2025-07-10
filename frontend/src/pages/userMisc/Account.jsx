@@ -1,5 +1,5 @@
-import { useUserStore } from '../store/user'
-import { useUserPrefStore } from '../store/userPref'
+import { useUserStore } from '../../store/user'
+import { useUserPrefStore } from '../../store/userPref'
 import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HStack, Text, Heading, Input, Button, IconButton, Select, Badge } from '@chakra-ui/react'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'

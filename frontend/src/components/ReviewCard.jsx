@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons'
 
-const ReviewCard = ({ review, onEdit, onDelete }) => {
+const ReviewCard = ({ review, onEdit, onDelete, showChurchInfo = false }) => {
     const bgColor = useColorModeValue('white', 'gray.700')
     const borderColor = useColorModeValue('gray.200', 'gray.600')
     const textColor = useColorModeValue('gray.700', 'gray.200')
@@ -74,6 +74,19 @@ const ReviewCard = ({ review, onEdit, onDelete }) => {
                         </Text>
                     ))}
                 </HStack>
+
+                {showChurchInfo && review.churchId && (
+                    <Box>
+                        <Text fontSize="sm" fontWeight="semibold" color="teal.500">
+                            {review.churchId.name}
+                        </Text>
+                        {review.churchId.address && (
+                            <Text fontSize="xs" color="gray.500">
+                                {review.churchId.address}
+                            </Text>
+                        )}
+                    </Box>
+                )}
 
                 {review.reviewText && (
                     <Text fontSize="md" color={textColor}>
