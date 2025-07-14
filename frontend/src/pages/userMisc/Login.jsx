@@ -1,4 +1,4 @@
-import { Box, Button, Container, Heading, Input, useColorModeValue, useToast, VStack, FormControl, FormLabel } from '@chakra-ui/react'
+import { Box, Button, Container, Heading, Input, useColorModeValue, useToast, VStack, FormControl, FormLabel, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure } from '@chakra-ui/react'
 import { PasswordInput } from "@/components/ui/password-input"
 import { useState } from 'react'
 import { useUserStore } from '../../store/user'
@@ -11,6 +11,7 @@ const Login = () => {
     })
     const toast = useToast()
     const navigate = useNavigate()
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     const isFormValid = () => {
         return (
@@ -47,6 +48,33 @@ const Login = () => {
         })
     }
 
+    const handleDemoLogin = async (type) => {
+        let credentials
+        if (type === 'churchgoer') {
+            credentials = { email: 'demo@user.io', password: 'password' }
+        } else if (type === 'churchRep') {
+            credentials = { email: 'demo@familyhomechurch.org', password: 'FaSoHoSp' }
+        }
+        const { success, message } = await login(credentials)
+        if (!success) {
+            toast({
+                title: 'Error',
+                description: message,
+                status: 'error',
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: 'Success',
+                description: message,
+                status: 'success',
+                isClosable: true,
+            })
+            navigate('/')
+        }
+        onClose()
+    }
+
 
     return <Container maxW={"container.sm"}>
         <VStack spacing={8} py={8}>
@@ -79,23 +107,60 @@ const Login = () => {
                         />
                     </FormControl>
 
-                    <Button
-                        colorScheme="blue"
-                        width="full"
-                        onClick={handleLoginUser}
-                        isDisabled={!isFormValid()}
-                    >
-                        Log In
-                    </Button>
+                    <HStack width="full" spacing={4}>
+                        <Button
+                            colorScheme="blue"
+                            flex={1}
+                            onClick={handleLoginUser}
+                            isDisabled={!isFormValid()}
+                        >
+                            Log In
+                        </Button>
+                        <Button
+                            variant="solid"
+                            flex={1}
+                            colorScheme="cyan"
+                            onClick={() => navigate('/signup')}
+                        >
+                            Don't have an account? Sign Up
+                        </Button>
+                    </HStack>
 
                     <Button
-                        variant="solid"
-                        width="half"
-                        colorScheme="cyan"
-                        onClick={() => navigate('/signup')}
+                        width="full"
+                        spacing={4}
+                        colorScheme="teal"
+                        onClick={onOpen}
                     >
-                        Don't have an account? Sign In
+                        Demo Login
                     </Button>
+
+                    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+                        <ModalOverlay />
+                        <ModalContent>
+                            <ModalHeader>Demo Login</ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody pb={6}>
+                                <VStack spacing={4}>
+                                    <Button
+                                        colorScheme="gray"
+                                        width="fit-content"
+                                        onClick={() => handleDemoLogin('churchgoer')}
+                                    >
+                                        Login as Demo Churchgoer
+                                    </Button>
+                                    <Button
+                                        colorScheme="purple"
+                                        width="fit-content"
+                                        onClick={() => handleDemoLogin('churchRep')}
+                                    >
+                                        Login as Demo Church Rep
+                                    </Button>
+                                </VStack>
+                            </ModalBody>
+                        </ModalContent>
+                    </Modal>
+
                 </VStack>
             </Box>
         </VStack>

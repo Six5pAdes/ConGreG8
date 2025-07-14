@@ -1,18 +1,13 @@
 import {
-    Box, Container, Heading, Image, Text, VStack, useColorModeValue, useDisclosure, HStack, Input, Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Button,
-    IconButton,
+    Box, Container, Heading, Image, Text, VStack, useColorModeValue, useDisclosure, HStack, Input,
+    Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay,
+    Button, IconButton,
     Select,
     useToast,
     Textarea,
     Checkbox,
     Badge,
+    Link,
 } from '@chakra-ui/react'
 
 import { useEffect, useState } from 'react'
@@ -552,14 +547,15 @@ const ChurchInfo = () => {
                                 {church.website && (
                                     <Text>
                                         Website:{' '}
-                                        <a
+                                        <Link
                                             href={church.website}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            style={{ color: '#319795' }}
+                                            color="#3c78d8"
+                                            _hover={{ textDecoration: 'underline' }}
                                         >
                                             {church.website}
-                                        </a>
+                                        </Link>
                                     </Text>
                                 )}
                             </Box>
