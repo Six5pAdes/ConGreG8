@@ -18,11 +18,13 @@ import VolunteerForm from "./components/VolunteerForm";
 import Account from "./pages/userMisc/Account";
 import UserReviews from "./pages/reviewMisc/UserReviews";
 import Saved from './pages/Saved'
+import NotFound from "./pages/NotFound";
 
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import About from "./pages/footerPages/About"
 import Features from './pages/footerPages/Features'
+import PrivacyPolicy from './pages/footerPages/PrivacyPolicy.jsx'
 import Map from './pages/Map'
 
 const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE';
@@ -77,7 +79,9 @@ function App() {
 
           <Route path="/about" element={<About />} />
           <Route path="/features" element={<Features />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/map" element={<Map />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
       </Box>

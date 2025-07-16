@@ -1,6 +1,7 @@
 import { useUserStore } from '../../store/user'
 import { useUserPrefStore } from '../../store/userPref'
-import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HStack, Text, Heading, Input, Button, IconButton, Select, Badge } from '@chakra-ui/react'
+import { useChurchStore } from '../../store/church'
+import { Box, Container, useColorModeValue, useDisclosure, useToast, VStack, HStack, Text, Heading, Input, Button, IconButton, Select, Badge, Link } from '@chakra-ui/react'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
@@ -10,10 +11,12 @@ const Account = () => {
     const { userId } = useParams()
     const { currentUser, fetchUser, logout, updateUser, deleteUser } = useUserStore()
     const { fetchSingleUserPref, updateUserPref, deleteUserPref, currentUserPrefs } = useUserPrefStore()
+    const { fetchChurches, churches } = useChurchStore()
 
     const [user, setUser] = useState(null)
     const [updatedUser, setUpdatedUser] = useState(null)
     const [confirmPassword, setConfirmPassword] = useState("")
+    const [myChurches, setMyChurches] = useState([])
 
     const bg = useColorModeValue("white", "gray.800")
     const textColor = useColorModeValue("light" ? "gray.800" : "whiteAlpha.900")
@@ -34,6 +37,24 @@ const Account = () => {
         }
         loadUser()
     }, [userId, fetchUser, fetchSingleUserPref])
+
+    // Fetch churches for churchRep
+    useEffect(() => {
+        const loadChurches = async () => {
+            if (currentUser?.userType === 'churchRep') {
+                await fetchChurches()
+            }
+        }
+        loadChurches()
+    }, [currentUser, fetchChurches])
+
+    // Filter churches for this rep
+    useEffect(() => {
+        if (currentUser?.userType === 'churchRep' && churches.length > 0) {
+            const mine = churches.filter(church => church.userId === currentUser._id)
+            setMyChurches(mine)
+        }
+    }, [currentUser, churches])
 
     const handleDelete = async (uid) => {
         const { success, message } = await deleteUser(uid)
@@ -268,6 +289,25 @@ const Account = () => {
                             </HStack>
                         )}
                     </VStack>
+
+                    {/* Church Info for Church Rep */}
+                    {currentUser?.userType === 'churchRep' && myChurches.length > 0 && (
+                        <Box mt={8} p={6} bg={bg} rounded="lg" shadow="md">
+                            <Heading as="h2" size="lg" mb={4} color={textColor}>Church Information</Heading>
+                            {myChurches.map((church) => (
+                                <Box key={church._id} mb={6}>
+                                    <Text fontWeight="bold">{church.name}</Text>
+                                    <Text>Address: {church.address}, {church.city}, {church.state} {church.zipcode}</Text>
+                                    {church.phone && <Text>Phone: {church.phone}</Text>}
+                                    {church.website && (
+                                        <Text>
+                                            Website: <Link href={church.website} target="_blank" rel="noopener noreferrer" style={{ color: '#3182ce' }}>{church.website}</Link>
+                                        </Text>
+                                    )}
+                                </Box>
+                            ))}
+                        </Box>
+                    )}
 
                     <Button onClick={onUpdateOpen} colorScheme="blue" mr={4} marginTop={10}>Update Account</Button>
                 </Box>
