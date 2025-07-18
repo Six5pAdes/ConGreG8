@@ -47,7 +47,9 @@ const Footer = () => {
                             color="gray.300" _hover={{ color: "white" }} onClick={handleComingSoon}>Terms of Service</Link>
                         <Link
                             href='/privacy'
-                            color="gray.300" _hover={{ color: "white" }} onClick={handleComingSoon}>Privacy Policy</Link>
+                            color="gray.300" _hover={{ color: "white" }}
+                        // onClick={handleComingSoon}
+                        >Privacy Policy</Link>
                         <Link color="gray.300" _hover={{ color: "white" }} onClick={e => { e.preventDefault(); setConnectOpen(true); }}>Contact</Link>
                     </Flex>
                 </GridItem>

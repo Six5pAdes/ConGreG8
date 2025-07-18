@@ -41,7 +41,7 @@ const About = () => {
                 Click {" "}
                 <Link
                     href="/features"
-                    color="turquoise">
+                    color="#3c78d8">
                     here
                 </Link> {" "}
                 to learn more about how the site works.
