@@ -130,6 +130,7 @@ ConGreG8/
 
    ```bash
    # Terminal 1 - Backend (runs on port 5000)
+   cd backend
    npm run dev
 
    # Terminal 2 - Frontend (runs on port 5173)
