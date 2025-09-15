@@ -24,8 +24,9 @@ const Map = () => {
     const [geoError, setGeoError] = useState(null);
 
     // Google Maps API loader (redundant if parent already loaded, but safe)
-    const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE',
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    const { isLoaded, loadError } = useJsApiLoader({
+        googleMapsApiKey: apiKey,
     });
 
     // Fetch all churches on mount
@@ -77,6 +78,26 @@ const Map = () => {
             strokeWeight: 2,
         }
         : undefined;
+
+    // If API key missing, surface helpful message (especially for production env)
+    if (!apiKey) {
+        return (
+            <Box maxW="1200px" mx="auto" mt={8}>
+                <Text color="red.500">
+                    Missing Google Maps API key. Set VITE_GOOGLE_MAPS_API_KEY in your env and rebuild/redeploy.
+                </Text>
+            </Box>
+        );
+    }
+
+    // If loader errored, display it
+    if (loadError) {
+        return (
+            <Box maxW="1200px" mx="auto" mt={8}>
+                <Text color="red.500">Failed to load Google Maps: {String(loadError)}</Text>
+            </Box>
+        );
+    }
 
     return (
         <Box maxW="1200px" mx="auto" mt={8}>
