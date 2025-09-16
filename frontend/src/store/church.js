@@ -75,9 +75,13 @@ export const useChurchStore = create((set) => ({
   },
 
   fetchChurches: async () => {
-    const res = await fetch("/api/churches");
-    const data = await res.json();
-    set({ churches: data.data });
+    try {
+      const res = await fetch("/api/churches");
+      const data = await res.json();
+      set({ churches: data.data });
+    } catch (error) {
+      console.error("Error fetching churches:", error);
+    }
   },
 
   deleteChurch: async (cid) => {

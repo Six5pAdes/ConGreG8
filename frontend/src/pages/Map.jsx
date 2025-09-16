@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { useLocation } from 'react-router-dom';
 import { useChurchStore } from '../store/church';
 import { Box, Spinner, Text } from '@chakra-ui/react';
 
@@ -22,6 +23,7 @@ const Map = () => {
     const [userLocation, setUserLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
     const [geoError, setGeoError] = useState(null);
+    const location = useLocation();
 
     // Google Maps API loader (redundant if parent already loaded, but safe)
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -29,10 +31,12 @@ const Map = () => {
         googleMapsApiKey: apiKey,
     });
 
-    // Fetch all churches on mount
+    // Fetch all churches when component mounts or when navigating to map page
     useEffect(() => {
-        fetchChurches();
-    }, [fetchChurches]);
+        if (location.pathname === '/map') {
+            fetchChurches();
+        }
+    }, [location.pathname, fetchChurches]);
 
     // Get user geolocation
     useEffect(() => {
@@ -67,17 +71,12 @@ const Map = () => {
             ));
     }, [churches]);
 
-    // Define user marker icon only after Google Maps is loaded
-    const userMarkerIcon = isLoaded && window.google && window.google.maps && window.google.maps.SymbolPath
-        ? {
-            path: window.google.maps.SymbolPath.CIRCLE,
-            fillColor: '#4285F4',
-            fillOpacity: 1,
-            scale: 8,
-            strokeColor: '#fff',
-            strokeWeight: 2,
-        }
-        : undefined;
+    // Define user marker icon - use a simple blue dot
+    const userMarkerIcon = {
+        url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        scaledSize: { width: 32, height: 32 }
+    };
+
 
     // If API key missing, surface helpful message (especially for production env)
     if (!apiKey) {
@@ -114,7 +113,7 @@ const Map = () => {
                     zoom={userLocation ? 12 : 5}
                 >
                     {/* User marker */}
-                    {userLocation && userMarkerIcon && (
+                    {userLocation && (
                         <Marker
                             position={userLocation}
                             icon={userMarkerIcon}
